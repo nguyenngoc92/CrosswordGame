@@ -97,6 +97,7 @@ int attr spinnerMode 0x7f01004e
 int attr spinnerStyle 0x7f010053
 int attr subtitle 0x7f010025
 int attr subtitleTextStyle 0x7f010027
+int attr text 0x7f01006a
 int attr textAllCaps 0x7f010069
 int attr textAppearanceLargePopupMenu 0x7f010010
 int attr textAppearanceListItem 0x7f01001f
@@ -104,7 +105,9 @@ int attr textAppearanceListItemSmall 0x7f010020
 int attr textAppearanceSearchResultSubtitle 0x7f010063
 int attr textAppearanceSearchResultTitle 0x7f010062
 int attr textAppearanceSmallPopupMenu 0x7f010011
+int attr textColor 0x7f01006b
 int attr textColorSearchUrl 0x7f010064
+int attr textSize 0x7f01006c
 int attr title 0x7f010021
 int attr titleTextStyle 0x7f010026
 int attr windowActionBar 0x7f010000
@@ -332,7 +335,10 @@ int string abc_shareactionprovider_share_with 0x7f0a000c
 int string abc_shareactionprovider_share_with_application 0x7f0a000b
 int string action_settings 0x7f0a000f
 int string app_name 0x7f0a000d
+int string button_another_view 0x7f0a0012
+int string button_web_view 0x7f0a0011
 int string hello_world 0x7f0a000e
+int string title_crossword_generated 0x7f0a0010
 int style AppBaseTheme 0x7f0b0083
 int style AppTheme 0x7f0b0084
 int style TextAppearance_AppCompat_Base_CompactMenu_Dialog 0x7f0b0063
@@ -506,6 +512,10 @@ int styleable ActivityChooserView_expandActivityOverflowButtonDrawable 1
 int styleable ActivityChooserView_initialActivityCount 0
 int[] styleable CompatTextView { 0x7f010069 }
 int styleable CompatTextView_textAllCaps 0
+int[] styleable CrosswordEdit { 0x7f01006a, 0x7f01006b, 0x7f01006c }
+int styleable CrosswordEdit_text 0
+int styleable CrosswordEdit_textColor 1
+int styleable CrosswordEdit_textSize 2
 int[] styleable LinearLayoutICS { 0x7f01002a, 0x7f010051, 0x7f010052 }
 int styleable LinearLayoutICS_divider 0
 int styleable LinearLayoutICS_dividerPadding 2
