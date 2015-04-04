@@ -7,5 +7,9 @@
     <string name="title_crossword_generated">Generated crossword</string>
     <string name="button_web_view">Show web view</string>
     <string name="button_another_view">Show another view</string>
+    <string name="login">Login</string>
+    <string name="forgotPass">Forgot password ?</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
 
 </resources>
