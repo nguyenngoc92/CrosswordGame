@@ -14,16 +14,6 @@
         android:text="@string/login"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TextView
-        android:id="@+id/tvEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView1"
-        android:layout_marginTop="22dp"
-        android:text="@string/email"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <EditText
         android:id="@+id/edtEmail"
         android:layout_width="wrap_content"
@@ -78,5 +68,23 @@
         android:text="@string/forgotPass"
         android:textAppearance="?android:attr/textAppearanceSmall"
          />
+
+    <TextView
+        android:id="@+id/tvEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView1"
+        android:layout_marginTop="100dp"
+        android:text="@string/email"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvErrorLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/edtEmail"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="34dp" />
 
 </RelativeLayout>
