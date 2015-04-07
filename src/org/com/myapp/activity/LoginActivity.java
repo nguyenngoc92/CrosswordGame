@@ -1,9 +1,6 @@
 package org.com.myapp.activity;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +42,8 @@ public class LoginActivity extends ActionBarActivity {
 	private static final String TAG_SCORE = "score";
 	private static final String TAG_RANK = "rank";
 
+	private HttpConnection httpConnection = HttpConnection.getInstance();
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -66,7 +65,7 @@ public class LoginActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 
-				if (HttpConnection.checkNetWorkState(getApplicationContext())) {
+				if (httpConnection.checkNetWorkState(getApplicationContext())) {
 
 					sendPostRequestLogin(edtEmail.getText().toString(),
 							edtPassword.getText().toString());
@@ -104,8 +103,7 @@ public class LoginActivity extends ActionBarActivity {
 				System.out.println("*** doInBackground ** paramUsername "
 						+ paramUsername + " paramPassword :" + paramPassword);
 
-				HttpClient httpClient = HttpConnection.getInstance()
-						.getHttpClient();
+				HttpClient httpClient = httpConnection.getHttpClient();
 
 				HttpPost httpPost = new HttpPost(AppInitial.loginUrl);
 
@@ -131,7 +129,7 @@ public class LoginActivity extends ActionBarActivity {
 						HttpResponse httpResponse = httpClient
 								.execute(httpPost);
 
-						return getResponse(httpResponse);
+						return httpConnection.getResponse(httpResponse);
 					} catch (ClientProtocolException cpe) {
 
 						System.out.println("Firstption caz of HttpResponese :"
@@ -183,8 +181,7 @@ public class LoginActivity extends ActionBarActivity {
 
 			@Override
 			protected String doInBackground(Void... params) {
-				HttpClient httpClient = HttpConnection.getInstance()
-						.getHttpClient();
+				HttpClient httpClient = httpConnection.getHttpClient();
 
 				HttpGet httpGet = new HttpGet(AppInitial.userInforUrl);
 
@@ -192,7 +189,7 @@ public class LoginActivity extends ActionBarActivity {
 
 					HttpResponse httpResponse = httpClient.execute(httpGet);
 
-					return getResponse(httpResponse);
+					return httpConnection.getResponse(httpResponse);
 				} catch (ClientProtocolException cpe) {
 
 					System.out.println("Firstption caz of HttpResponese :"
@@ -217,7 +214,7 @@ public class LoginActivity extends ActionBarActivity {
 						JSONObject reader = new JSONObject(result);
 
 						String username = reader.getString(TAG_USERNAME);
-						String score = reader.getString(TAG_SCORE);
+						int score = reader.getInt(TAG_SCORE);
 						String rank = reader.getString(TAG_RANK);
 
 						// start main activity
@@ -241,41 +238,6 @@ public class LoginActivity extends ActionBarActivity {
 
 		SendGetUserInforReqAsyncTask sendGetUserInforReqAsyncTask = new SendGetUserInforReqAsyncTask();
 		sendGetUserInforReqAsyncTask.execute(null, null);
-	}
-
-	public String getResponse(HttpResponse httpResponse) {
-
-		InputStream inputStream = null;
-		try {
-			inputStream = httpResponse.getEntity().getContent();
-
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-
-		BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-		StringBuilder stringBuilder = new StringBuilder();
-
-		String bufferedStrChunk = null;
-
-		try {
-			while ((bufferedStrChunk = bufferedReader.readLine()) != null) {
-				stringBuilder.append(bufferedStrChunk);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return stringBuilder.toString();
-
 	}
 
 }
