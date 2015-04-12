@@ -30,6 +30,11 @@
             android:label="@string/app_name" >
             >
         </activity>
+        <activity
+            android:name="org.com.myapp.activity.PlayActivity"
+            android:label="@string/app_name" >
+            >
+        </activity>
     </application>
 
 </manifest>

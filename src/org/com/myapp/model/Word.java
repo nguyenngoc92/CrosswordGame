@@ -19,6 +19,24 @@ public class Word {
 		this.item = _item;
 	}
 
+	public int getMaxX() {
+
+		if (position.getDir() == 1) {
+
+			return position.getX() + item.getAnswer().length() - 1;
+		}
+
+		return position.getX();
+	}
+
+	public int getMaxY() {
+		if (position.getDir() == 0) {
+			return position.getY() + item.getAnswer().length() - 1;
+		}
+
+		return position.getY();
+	}
+
 	public int getOrder() {
 		return order;
 	}

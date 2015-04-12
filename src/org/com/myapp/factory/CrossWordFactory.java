@@ -8,12 +8,13 @@ import org.com.myapp.model.Position;
 
 public class CrossWordFactory {
 
-	private final String letters = "abcdefghijklmnopqrstuvwxyz";
+	private final String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	private int[] dirX = { 0, 1 };
 	private int[] dirY = { 1, 0 };
 
-	char[][] board;
+	private String[][] board;
+	private String[][] tmp;
 
 	private int[][] hWords;
 	private int[][] vWords;
@@ -24,14 +25,10 @@ public class CrossWordFactory {
 
 	private Random _rand;
 
-//	private List<Word> _wordsToInsert;
-	//private char[][] tempBoard;
-	//private static int beastSol;
-	//private long initialTime;
-
 	public CrossWordFactory(int wDimension, int hDimension) {
 
-		board = new char[wDimension][hDimension];
+		board = new String[wDimension][hDimension];
+		tmp = new String[wDimension][hDimension];
 		hWords = new int[wDimension][hDimension];
 		vWords = new int[wDimension][hDimension];
 
@@ -41,7 +38,7 @@ public class CrossWordFactory {
 
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				board[i][j] = ' ';
+				board[i][j] = " ";
 			}
 		}
 
@@ -53,8 +50,8 @@ public class CrossWordFactory {
 		String result = "";
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				result += letters.contains(Character.toString(board[i][j])) ? board[i][j]
-						: '*';
+				result += letters.contains((CharSequence) board[i][j]) ? board[i][j]
+						: " ";
 			}
 
 			if (i < n - 1)
@@ -82,8 +79,8 @@ public class CrossWordFactory {
 			for (int j = 0; j < word.length(); j++) {
 
 				int x1 = x, y1 = y + j;
-				if (!(isValidPosition(x1, y1) && (board[x1][y1] == ' ' || board[x1][y1] == word
-						.charAt(j)))) {
+				if (!(isValidPosition(x1, y1) && (board[x1][y1] == " " || board[x1][y1] == word
+						.substring(j, j + 1)))) {
 					return -1;
 				}
 
@@ -96,7 +93,7 @@ public class CrossWordFactory {
 						return -1;
 				}
 
-				if (board[x1][y1] == word.charAt(j))
+				if (board[x1][y1] == word.substring(j, j + 1))
 					result++;
 			}
 		} else {
@@ -105,8 +102,8 @@ public class CrossWordFactory {
 
 				int x1 = x + j, y1 = y;
 
-				if (!(isValidPosition(x1, y1) && (board[x1][y1] == ' ' || board[x1][y1] == word
-						.charAt(j))))
+				if (!(isValidPosition(x1, y1) && (board[x1][y1] == " " || board[x1][y1] == word
+						.substring(j, j + 1))))
 					return -1;
 
 				if (isValidPosition(x1, y1 - 1)) {
@@ -119,7 +116,7 @@ public class CrossWordFactory {
 						return -1;
 				}
 
-				if (board[x1][y1] == word.charAt(j))
+				if (board[x1][y1] == word.substring(j, j + 1))
 					result++;
 			}
 		}
@@ -127,14 +124,14 @@ public class CrossWordFactory {
 		int xStar = x - dirX[dir], yStar = y - dirY[dir];
 
 		if (isValidPosition(xStar, yStar)) {
-			if (!(board[xStar][yStar] == ' ' || board[xStar][yStar] == '*'))
+			if (!(board[xStar][yStar] == " " || board[xStar][yStar] == "*"))
 				return -1;
 		}
 
 		xStar = x + dirX[dir] * word.length();
 		yStar = y + dirY[dir] * word.length();
 		if (isValidPosition(xStar, yStar))
-			if (!(board[xStar][yStar] == ' ' || board[xStar][yStar] == '*'))
+			if (!(board[xStar][yStar] == " " || board[xStar][yStar] == "*"))
 				return -1;
 
 		return result == word.length() ? -1 : result;
@@ -204,53 +201,6 @@ public class CrossWordFactory {
 		return null;
 	}
 
-	/*
-	 * public void gen(int pos) {
-	 * 
-	 * if (pos >= _wordsToInsert.size() || (System.currentTimeMillis() -
-	 * initialTime > 60000)) return;
-	 * 
-	 * for (int i = pos; i < _wordsToInsert.size(); i++) { Position posi =
-	 * bestPosition(_wordsToInsert.get(i).getItem() .getAnswer()); if (posi !=
-	 * null) {
-	 * 
-	 * int value = posi.getDir() == 0 ? hCount : vCount;
-	 * putWord(_wordsToInsert.get(i).getItem().getAnswer(), posi, value);
-	 * gen(pos + 1);
-	 * 
-	 * removeWord(_wordsToInsert.get(i).getItem().getAnswer(), posi); } else {
-	 * gen(pos + 1); } }
-	 * 
-	 * int c = freeSpaces(); if (c >= beastSol) return; beastSol = c; tempBoard
-	 * = board.clone();
-	 * 
-	 * }
-	 * 
-	 * private void removeWord(String word, Position posi) {
-	 * 
-	 * int mat[][] = posi.getDir() == 0 ? hWords : vWords; int mat1[][] =
-	 * posi.getDir() == 0 ? vWords : hWords;
-	 * 
-	 * for (int i = 0; i < word.length(); i++) { int x1 = posi.getX() +
-	 * dirX[posi.getDir()] * i; int y1 = posi.getY() + dirY[posi.getDir()] * i;
-	 * 
-	 * if (mat1[x1][y1] == 0) board[x1][y1] = ' '; mat[x1][y1] = 0; }
-	 * 
-	 * int xStar = posi.getX() - dirX[posi.getDir()]; int yStar = posi.getY() -
-	 * dirY[posi.getDir()];
-	 * 
-	 * if (isValidPosition(xStar, yStar) && hasFactibleValueAround(xStar,
-	 * yStar)) board[xStar][yStar] = ' '; }
-	 * 
-	 * private boolean hasFactibleValueAround(int x, int y) { for (int i = 0; i
-	 * < dirX.length; i++) { int x1 = x + dirX[i], y1 = y + dirY[i]; if
-	 * (isValidPosition(x1, y1) && (board[x1][y1] != ' ' || board[x1][y1] ==
-	 * '*')) return true; x1 = x - dirX[i]; y1 = y - dirY[i]; if
-	 * (isValidPosition(x1, y1) && (board[x1][y1] != ' ' || board[x1][y1] ==
-	 * '*')) return true;
-	 * 
-	 * } return false; }
-	 */
 	// put a word
 	public void putWord(String word, Position p, int value) {
 
@@ -258,27 +208,28 @@ public class CrossWordFactory {
 		for (int i = 0; i < word.length(); i++) {
 			int x1 = p.getX() + dirX[p.getDir()] * i;
 			int y1 = p.getY() + dirY[p.getDir()] * i;
-			board[x1][y1] = word.charAt(i);
+			board[x1][y1] = word.substring(i, i + 1);
+			tmp[x1][y1] = " ";
 			mat[x1][y1] = value;
 		}
 
 		int xStar = p.getX() - dirX[p.getDir()];
 		int yStar = p.getY() - dirY[p.getDir()];
 		if (isValidPosition(xStar, yStar))
-			board[xStar][yStar] = '*';
+			board[xStar][yStar] = "*";
 
 		xStar = p.getX() + dirX[p.getDir()] * word.length();
 		yStar = p.getY() + dirY[p.getDir()] * word.length();
 
 		if (isValidPosition(xStar, yStar))
-			board[xStar][yStar] = '*';
+			board[xStar][yStar] = "*";
 
 	}
 
 	public void reset() {
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				board[i][j] = ' ';
+				board[i][j] = " ";
 				vWords[i][j] = 0;
 				hWords[i][j] = 0;
 				hCount = vCount = 0;
@@ -290,7 +241,7 @@ public class CrossWordFactory {
 		int count = 0;
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				if (board[i][j] == ' ' || board[i][j] == '*')
+				if (board[i][j] == " " || board[i][j] == "*")
 					count++;
 			}
 		}
@@ -298,8 +249,12 @@ public class CrossWordFactory {
 		return count;
 	}
 
-	public char[][] getBoard() {
+	public String[][] getBoard() {
 		return board;
+	}
+
+	public String[][] getTmp() {
+		return tmp;
 	}
 
 	public int[] getDirX() {
@@ -350,14 +305,6 @@ public class CrossWordFactory {
 		this.m = m;
 	}
 
-	public int gethCount() {
-		return hCount;
-	}
-
-	public void sethCount(int hCount) {
-		this.hCount = hCount;
-	}
-
 	public int getvCount() {
 		return vCount;
 	}
@@ -366,20 +313,23 @@ public class CrossWordFactory {
 		this.vCount = vCount;
 	}
 
-	public Random get_rand() {
-		return _rand;
-	}
-
-	public void set_rand(Random _rand) {
-		this._rand = _rand;
-	}
-
-
-
-
-
 	public String getLetters() {
 		return letters;
+	}
+	
+	public String tempToString(){
+		String result="";
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				
+				result += tmp[i][j] == null?"*":" ";
+			}
+
+			if (i < n - 1)
+				result += "\n";
+		}
+		
+		return result;
 	}
 
 }

@@ -3,6 +3,8 @@ package org.com.myapp;
 import java.util.ArrayList;
 
 import org.com.myapp.model.Item;
+import org.com.myapp.model.Position;
+import org.com.myapp.model.Word;
 
 public class AppInitial {
 
@@ -11,6 +13,8 @@ public class AppInitial {
 
 	public static String getMatchUrl = "http://192.168.1.69:8080/user/match/getmatch";
 
+	public static final int REQUEST_PREFERENCES = 2;
+	public static final float KEYBOARD_OVERLAY_OFFSET = 90;
 	// intent infor
 	public static String USER_NAME = "USERNAME";
 	public static String SCORE = "SCORE";
@@ -38,5 +42,18 @@ public class AppInitial {
 				"Start with letter 'M'", "MICROWAVE", false));
 
 		return items;
+	}
+
+	public static ArrayList<Word> getWords() {
+		ArrayList<Word> words = new ArrayList<Word>();
+
+		ArrayList<Item> items = getItems();
+		for (Item item : items) {
+
+			words.add(new Word(0, new Position(), item));
+
+		}
+
+		return words;
 	}
 }
