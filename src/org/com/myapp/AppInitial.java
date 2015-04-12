@@ -8,6 +8,9 @@ import org.com.myapp.model.Word;
 
 public class AppInitial {
 
+	public static int sizeBoard = 15;
+
+	
 	public static String loginUrl = "http://192.168.1.69:8080/login";
 	public static String userInforUrl = "http://192.168.1.69:8080/user/userinfor";
 

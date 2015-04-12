@@ -209,7 +209,6 @@ public class CrossWordFactory {
 			int x1 = p.getX() + dirX[p.getDir()] * i;
 			int y1 = p.getY() + dirY[p.getDir()] * i;
 			board[x1][y1] = word.substring(i, i + 1);
-			tmp[x1][y1] = " ";
 			mat[x1][y1] = value;
 		}
 
@@ -250,43 +249,29 @@ public class CrossWordFactory {
 	}
 
 	public String[][] getBoard() {
-		return board;
+
+		String[][] b = new String[n][m];
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+
+				b[i][j] = letters.contains((CharSequence) board[i][j]) ? board[i][j]
+						: null;
+			}
+		}
+		return b;
 	}
 
 	public String[][] getTmp() {
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+
+				tmp[i][j] = letters.contains((CharSequence) board[i][j]) ? " "
+						: null;
+			}
+		}
 		return tmp;
-	}
-
-	public int[] getDirX() {
-		return dirX;
-	}
-
-	public void setDirX(int[] dirX) {
-		this.dirX = dirX;
-	}
-
-	public int[] getDirY() {
-		return dirY;
-	}
-
-	public void setDirY(int[] dirY) {
-		this.dirY = dirY;
-	}
-
-	public int[][] gethWords() {
-		return hWords;
-	}
-
-	public void sethWords(int[][] hWords) {
-		this.hWords = hWords;
-	}
-
-	public int[][] getvWords() {
-		return vWords;
-	}
-
-	public void setvWords(int[][] vWords) {
-		this.vWords = vWords;
 	}
 
 	public int getN() {
@@ -305,30 +290,18 @@ public class CrossWordFactory {
 		this.m = m;
 	}
 
-	public int getvCount() {
-		return vCount;
-	}
-
-	public void setvCount(int vCount) {
-		this.vCount = vCount;
-	}
-
-	public String getLetters() {
-		return letters;
-	}
-	
-	public String tempToString(){
-		String result="";
+	public String tempToString() {
+		String result = "";
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				
-				result += tmp[i][j] == null?"*":" ";
+
+				result += tmp[i][j] == null ? "*" : " ";
 			}
 
 			if (i < n - 1)
 				result += "\n";
 		}
-		
+
 		return result;
 	}
 

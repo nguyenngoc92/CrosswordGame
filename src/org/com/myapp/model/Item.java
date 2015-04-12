@@ -75,4 +75,6 @@ public class Item implements Serializable, Comparable<Item> {
 		this.check = check;
 	}
 
+	
+	
 }

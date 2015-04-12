@@ -36,9 +36,9 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		String username = getIntent().getStringExtra(AppInitial.USER_NAME);
+		/*String username = getIntent().getStringExtra(AppInitial.USER_NAME);
 		String score = getIntent().getStringExtra(AppInitial.SCORE);
-		String rank = getIntent().getStringExtra(AppInitial.RANK);
+		String rank = getIntent().getStringExtra(AppInitial.RANK);*/
 
 		init();
 	}

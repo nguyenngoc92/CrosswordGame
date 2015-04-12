@@ -2,7 +2,7 @@ package org.com.myapp.adapter;
 
 import java.util.HashMap;
 
-import org.com.myapp.activity.PlayActivity;
+import org.com.myapp.activity.MainActivity;
 import org.com.myapp.activity.R;
 import org.com.myapp.factory.CrossWordFactory;
 
@@ -18,31 +18,29 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
 
-public class GameGirdAdapter extends BaseAdapter {
+public class GameGridAdapter extends BaseAdapter {
 	public static final int AREA_BLOCK = -1;
 	public static final int AREA_WRITABLE = 0;
 	private Context context;
+
+	@SuppressLint("UseSparseArrays")
+	private HashMap<Integer, TextView> views = new HashMap<Integer, TextView>();
 
 	private int displayHeight;
 	private int width;
 	private int height;
 
-	private String[][] board;
 	private String[][] answer;
-
-	private boolean isDraft;
-	@SuppressLint("UseSparseArrays")
-	private HashMap<Integer, TextView> views = new HashMap<Integer, TextView>();
+	private String[][] correctAnswer;
 
 	@SuppressWarnings("deprecation")
-	public GameGirdAdapter(Activity act, CrossWordFactory factory, int width,
+	public GameGridAdapter(Activity act, CrossWordFactory factory, int width,
 			int height) {
 		this.context = (Context) act;
-		this.board = factory.getBoard();
 		this.answer = factory.getTmp();
+		this.correctAnswer = factory.getBoard();
 		this.width = width;
 		this.height = height;
-
 		// Calcul area height
 		Display display = act.getWindowManager().getDefaultDisplay();
 		this.displayHeight = display.getWidth() / this.width;
@@ -56,13 +54,13 @@ public class GameGirdAdapter extends BaseAdapter {
 	@Override
 	public Object getItem(int position) {
 
-		return views.get(position);
+		return null;
 	}
 
 	@Override
 	public long getItemId(int position) {
 
-		return position;
+		return 0;
 	}
 
 	@Override
@@ -74,6 +72,7 @@ public class GameGirdAdapter extends BaseAdapter {
 		int x = (int) (position % this.width);
 
 		String data = this.answer[y][x];
+		String answerData = this.correctAnswer[y][x];
 
 		if (v == null) {
 
@@ -97,35 +96,46 @@ public class GameGirdAdapter extends BaseAdapter {
 
 		}
 
-		if (((PlayActivity) context).currentMode == PlayActivity.GRID_MODE.NORMAL) {
-
-			if (data != null) {
-				if (Character.isLowerCase(data.charAt(0)))
-					v.setTextColor(context.getResources().getColor(
-							R.color.draft));
-				else
-					v.setTextColor(context.getResources().getColor(
-							R.color.normal));
-
-				v.setText(data);
-			}
-		}
-
 		return v;
 	}
 
-	public boolean isBlock(int x, int y) {
+	public boolean isBlock(int position) {
+		int y = position / this.width;
+		int x = position % this.width;
+
 		return (this.answer[y][x] == null);
+
 	}
 
-	public void setValue(int x, int y, String value) {
+	public void setValue(int position, String value) {
+		int y = position / this.width;
+		int x = position % this.width;
 		if (this.answer[y][x] != null) {
 			answer[y][x] = value;
+
 		}
 	}
 
-	public void setDraft(boolean isDraft) {
-		this.isDraft = isDraft;
+	public void sysOut() {
+		String result = "";
+		for (int i = 0; i < this.width; i++) {
+			for (int j = 0; j < this.height; j++) {
+				result += answer[i][j] != null ? answer[i][j] : "*";
+			}
+
+			if (i < this.width - 1)
+				result += "\n";
+		}
+
+		System.out.println(result);
+
+	}
+
+	public void setLower(boolean isLower) {
+	}
+
+	public String[][] getAnswer() {
+		return answer;
 	}
 
 }

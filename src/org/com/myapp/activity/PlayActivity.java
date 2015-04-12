@@ -1,19 +1,28 @@
 package org.com.myapp.activity;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.com.myapp.AppInitial;
-import org.com.myapp.adapter.GameGirdAdapter;
+import org.com.myapp.adapter.GameGridAdapter;
 import org.com.myapp.factory.CrossWordFactory;
 import org.com.myapp.keyboard.KeyboardView;
 import org.com.myapp.keyboard.KeyboardViewInterface;
+import org.com.myapp.model.Item;
+import org.com.myapp.model.Match;
 import org.com.myapp.model.Position;
 import org.com.myapp.model.Word;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -32,50 +41,50 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 
 	public GRID_MODE currentMode = GRID_MODE.NORMAL;
 
-	private ArrayList<Word> words;
-	private ArrayList<View> selectedArea = new ArrayList<View>();
-	private CrossWordFactory factory;
-
 	private GridView gridView;
-
 	private KeyboardView keyboardView;
-
-	private GameGirdAdapter gridAdapter;
+	private GameGridAdapter gridAdapter;
 	private TextView txtDescription;
 	private TextView keyboardOverlay;
 
-	private int width = 13;
-	private int height = 13;
+	private ArrayList<Word> entries;
+	private ArrayList<View> selectedArea = new ArrayList<View>();
+	private ArrayList<View> currentArea = new ArrayList<View>();
 
-	private int currentX;
-	private int currentY;
+	private int width = AppInitial.sizeBoard;
+	private int height = AppInitial.sizeBoard;
 
-	private boolean downIsPlayable;
-	private int downPos;
-	private int downX;
-	private int downY;
-	private int currentPos;
+	private boolean dowIsPlayable;
 
-	private boolean horizontal;
+	private int previousPosition = -1;
 
-	private Word currentWord;
+	private int currentDir = -1;
+
+	private CrossWordFactory factory;
+
+	private Word tmpWord;
+
+	private View view;
+
+	private double initialTime;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_play);
 
-		factory = new CrossWordFactory(width, height);
-		words = AppInitial.getWords();
+		Match m = (Match) getIntent().getSerializableExtra("match");
 
-		for (Word w : words) {
-
-			w.setPosition(factory.addWord(w.getItem().getAnswer()));
-
-			System.out.println(w.getItem().getAnswer() + " "
-					+ w.getPosition().toString());
-
+		if (m != null) {
+			entries = (ArrayList<Word>) createListWord(m);
 		}
+		factory = new CrossWordFactory(width, height);
+
+		for (Word w : entries) {
+			w.setPosition(factory.addWord(w.getItem().getAnswer()));
+		}
+
+		this.initialTime = System.currentTimeMillis();
 
 		Display display = getWindowManager().getDefaultDisplay();
 		@SuppressWarnings("deprecation")
@@ -91,11 +100,9 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 				.getLayoutParams();
 		gridParams.height = height - keyboardHeight
 				- this.txtDescription.getLayoutParams().height;
-
 		this.gridView.setLayoutParams(gridParams);
 		this.gridView.setVerticalScrollBarEnabled(false);
-
-		this.gridAdapter = new GameGirdAdapter(this, factory, this.width,
+		this.gridAdapter = new GameGridAdapter(this, factory, this.width,
 				this.height);
 		this.gridView.setAdapter(this.gridAdapter);
 
@@ -107,13 +114,106 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 		this.keyboardView.setLayoutParams(KeyboardParams);
 
 		this.keyboardOverlay = (TextView) findViewById(R.id.keyboard_overlay);
+
+	}
+
+	private List<Word> createListWord(Match match) {
+
+		List<Item> items = match.getItems();
+		Collections.sort(items);
+
+		ArrayList<Word> words = new ArrayList<Word>();
+		int order = 0;
+		for (Item item : items) {
+
+			Word word = new Word(order, new Position(), item);
+			words.add(word);
+			order++;
+		}
+
+		return words;
+
+	}
+
+	@Override
+	public void setDraft(boolean isDraft) {
+
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+
+		int x = (int) event.getX();
+		int y = (int) event.getY();
+		int itemPosition = gridView.pointToPosition(x, y);
+
+		switch (event.getAction()) {
+
+		case MotionEvent.ACTION_DOWN: {
+
+			View child = gridView.getChildAt(itemPosition);
+
+			if (child == null
+					|| child.getTag().equals(GameGridAdapter.AREA_BLOCK)) {
+
+				this.dowIsPlayable = false;
+				return true;
+			}
+
+			boolean hDir = false;
+			boolean vDir = false;
+
+			hDir = checkHashLeftOrChild(itemPosition);
+			vDir = checkHashUnderOrUpChild(itemPosition);
+
+			if (hDir) {
+				setCurrentDir(0);
+			} else if (vDir) {
+
+				setCurrentDir(1);
+			} else {
+				setCurrentDir(-1);
+			}
+
+			clearLineClicked();
+			setLineClicked(itemPosition);
+			this.dowIsPlayable = true;
+
+			if (view != null) {
+				resetViewSelected(itemPosition);
+			}
+
+			view = child;
+			child.setBackgroundResource(R.drawable.area_current);
+			selectedArea.add(child);
+			this.gridAdapter.notifyDataSetChanged();
+			this.previousPosition = itemPosition;
+
+			break;
+		}
+
+		case MotionEvent.ACTION_UP: {
+
+			if (!this.dowIsPlayable) {
+
+				return true;
+			}
+
+			String title = tmpWord.getItem().getQuestion();
+			this.txtDescription.setText(title);
+
+			this.gridAdapter.notifyDataSetChanged();
+
+			break;
+		}
+		}
+		return true;
 	}
 
 	@Override
 	public void onKeyDown(String value, int[] location, int width) {
-		System.out.println("onKeyDown: " + value + ", insert in: " + currentX
-				+ "x" + currentY);
 
+		// Deplace l'overlay du clavier
 		if (value.equals(" ") == false) {
 			int offsetX = (this.keyboardOverlay.getWidth() - width) / 2;
 			int offsetY = (int) TypedValue.applyDimension(
@@ -134,8 +234,6 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 
 	@Override
 	public void onKeyUp(String value) {
-		System.out.println("onKeyUp: " + value + ", insert in: " + currentX
-				+ "x" + currentY);
 
 		if (value.equals(" ") == false) {
 			this.keyboardOverlay.setAnimation(AnimationUtils.loadAnimation(
@@ -143,184 +241,319 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 			this.keyboardOverlay.setVisibility(View.INVISIBLE);
 		}
 
-		if (this.currentWord == null)
+		if (tmpWord == null)
 			return;
 
-		int x = this.currentX;
-		int y = this.currentY;
+		if (this.gridAdapter.isBlock(previousPosition)) {
 
-		if (this.gridAdapter.isBlock(x, y))
 			return;
+		}
 
-		this.gridAdapter.setValue(x, y, value);
+		this.gridAdapter.setValue(previousPosition, value);
 		this.gridAdapter.notifyDataSetChanged();
 
-		if (value.equals(" ")) {
-			x = (this.horizontal ? x - 1 : x);
-			y = (this.horizontal ? y : y - 1);
-		} else {
-			x = (this.horizontal ? x + 1 : x);
-			y = (this.horizontal ? y : y + 1);
+		if (view != null) {
+			TextView tView = (TextView) view;
+			tView.setText(value);
 		}
 
-		if (x >= 0 && x < this.width && y >= 0 && y < this.height
-				&& this.gridAdapter.isBlock(x, y) == false) {
-			this.gridView.getChildAt(y * this.width + x).setBackgroundResource(
-					R.drawable.area_current);
-			this.gridView
-					.getChildAt(this.currentY * this.width + this.currentX)
-					.setBackgroundResource(R.drawable.area_selected);
-			this.currentX = x;
-			this.currentY = y;
+		this.gridAdapter.notifyDataSetChanged();
+		// move cursor to the next point
+		int tmp = this.moveItemSelected(value);
+
+		if (tmp >= 1 && tmp <= this.width * this.height
+				&& !gridAdapter.isBlock(tmp)) {
+
+			view.setBackgroundResource(R.drawable.area_selected);
+			view = gridView.getChildAt(tmp);
+			view.setBackgroundResource(R.drawable.area_current);
+			previousPosition = tmp;
+
 		}
+
+		this.gridAdapter.notifyDataSetChanged();
 
 	}
 
-	@Override
-	public void setDraft(boolean isDraft) {
-		this.gridAdapter.setDraft(isDraft);
+	private int moveItemSelected(String value) {
+
+		int tmp = -1;
+		if (previousPosition != -1) {
+
+			if (currentDir != -1) {
+
+				if (value.equals(" ")) {
+
+					tmp = this.currentDir == 0 ? previousPosition - this.width
+							: previousPosition - 1;
+				} else {
+
+					tmp = this.currentDir == 0 ? previousPosition + 1
+							: previousPosition + this.width;
+				}
+
+			}
+		}
+
+		return tmp;
 
 	}
 
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
+	private void setCurrentDir(int currentDir) {
+		this.currentDir = currentDir;
+	}
 
-		switch (event.getActionMasked()) {
+	private void resetViewSelected(int position) {
 
-		case MotionEvent.ACTION_DOWN: {
-			int position = gridView.pointToPosition((int) event.getX(),
-					(int) event.getY());
-			System.out.println("Position: " + position);
+		if (currentDir == 0) {
 
-			View child = gridView.getChildAt(position);
-
-			if (child == null
-					|| child.getTag().equals(GameGirdAdapter.AREA_BLOCK)) {
-
-				clearSelection();
-				this.gridAdapter.notifyDataSetChanged();
-
-				// //////////////////////////////////////////
-				this.downIsPlayable = false;
-				return true;
-			}
-			this.downIsPlayable = true;
-			this.downPos = position;
-			this.downX = this.downPos % this.width;
-			// this.currentY = this.currentPos / this.width;
-
-			System.out.println("ACTION_DOWN, x:" + this.downX + ", y:"
-					+ this.downY + ", position: " + this.downPos);
-			clearSelection();
-			child.setBackgroundResource(R.drawable.area_selected);
-
-			selectedArea.add(child);
-			this.gridAdapter.notifyDataSetChanged();
-
-			break;
-		}
-		case MotionEvent.ACTION_UP: {
-			if (downIsPlayable == false)
-				return true;
-			int position = this.gridView.pointToPosition((int) event.getX(),
-					(int) event.getY());
-			int x = position % width;
-			int y = position / width;
-
-			System.out.println("ACTION_DOWN, x:" + x + ", y:" + y
-					+ ", position: " + position);
-
-			if (downPos == position && this.currentPos == position) {
-				this.horizontal = !this.horizontal;
-			} else if (this.downPos != position) {
-				this.horizontal = (Math.abs(this.downX - x) > Math
-						.abs(this.downY - y));
-
-			}
-
-			this.currentWord = getWord(downX, downY, this.horizontal);
-
-			if (this.currentWord == null)
-				break;
-
-			if (currentWord.getPosition().getDir() == 0)
-				this.horizontal = true;
-			else
-				this.horizontal = false;
-
-			if (this.downPos == position) {
-				this.currentX = this.downX;
-				this.currentY = this.downY;
-				this.currentPos = position;
+			if (position / this.width == previousPosition / this.width) {
+				view.setBackgroundResource(R.drawable.area_selected);
 			} else {
-				this.currentX = this.currentWord.getPosition().getX();
-				this.currentY = this.currentWord.getPosition().getY();
-				this.currentPos = this.currentY * this.width + this.currentX;
+				view.setBackgroundResource(R.drawable.area_empty);
 			}
 
-			this.txtDescription.setText(this.currentWord.getItem()
-					.getQuestion());
-			// set background color
+		} else if (currentDir == 1) {
 
-			int dir = this.currentWord.getPosition().getDir();
+			if (position % this.width == previousPosition % this.width) {
+				view.setBackgroundResource(R.drawable.area_selected);
+			} else {
+				view.setBackgroundResource(R.drawable.area_empty);
+			}
+		}
+	}
 
-			for (int l = 0; l < this.currentWord.getItem().getAnswer().length(); l++) {
+	private void setLineClicked(int position) {
 
-				int index = this.currentWord.getPosition().getY() * this.width
-						+ this.currentWord.getPosition().getX()
-						+ (l * (dir == 0 ? 1 : this.width));
+		Word currentWord = getCurrentWord(currentDir, position);
+		if (currentWord != null) {
 
-				View currentChild = this.gridView.getChildAt(index);
+			tmpWord = currentWord;
 
-				if (currentChild != null) {
-					currentChild
-							.setBackgroundResource(index == this.currentPos ? R.drawable.area_current
-									: R.drawable.area_selected);
-					selectedArea.add(currentChild);
+			if (currentDir == 0) {
+
+				for (int i = 0; i < currentWord.getItem().getAnswer().length(); i++) {
+
+					Position p = currentWord.getPosition();
+					int begin = p.getY() + width * p.getX();
+					View v = gridView.getChildAt(begin + i);
+					v.setBackgroundResource(R.drawable.area_selected);
+					currentArea.add(v);
+				}
+
+			} else if (currentDir == 1) {
+
+				for (int i = 0; i < currentWord.getItem().getAnswer().length(); i++) {
+
+					Position p = currentWord.getPosition();
+					int begin = p.getY() + width * p.getX();
+					View v = gridView.getChildAt(begin + i * width);
+					v.setBackgroundResource(R.drawable.area_selected);
+					currentArea.add(v);
 				}
 			}
 
-			this.gridAdapter.notifyDataSetChanged();
+		}
 
-			break;
+	}
+
+	private void clearLineClicked() {
+
+		for (View v : currentArea) {
+
+			v.setBackgroundResource(R.drawable.area_empty);
 		}
+
+		currentArea.removeAll(currentArea);
+
+	}
+
+	private Word getCurrentWord(int currentDir, int position) {
+
+		if (currentDir == 0) {
+
+			for (Word w : entries) {
+
+				Position p = w.getPosition();
+
+				int lenght = w.getItem().getAnswer().length();
+
+				if (p.getDir() == 0) {
+
+					int beginPosition = p.getY() + p.getX() * this.width;
+					int endPosition = beginPosition + lenght - 1;
+
+					if (position >= beginPosition && position <= endPosition) {
+
+						return w;
+					}
+
+				}
+			}
+
+		} else if (currentDir == 1) {
+
+			for (Word w : entries) {
+				Position p = w.getPosition();
+
+				int lenght = w.getItem().getAnswer().length();
+
+				if (p.getDir() == 1) {
+					int beginPosition = p.getY() + p.getX() * this.width;
+					int endPosition = beginPosition + this.width
+							* (p.getX() + lenght - 1);
+
+					if (position >= beginPosition && position <= endPosition) {
+
+						int mod1 = beginPosition % this.width;
+						int mod2 = position % this.width;
+
+						if (mod1 == mod2)
+							return w;
+					}
+				}
+
+			}
 		}
+
+		return null;
+	}
+
+	private boolean checkHashLeftOrChild(int position) {
+
+		View leftChild = this.gridView.getChildAt(position - 1);
+		View rightChild = this.gridView.getChildAt(position + 1);
+
+		if (leftChild != null || rightChild != null) {
+
+			if (leftChild != null)
+				if (leftChild.getTag().equals(GameGridAdapter.AREA_WRITABLE)) {
+					return true;
+				}
+
+			if (rightChild != null) {
+				if (rightChild.getTag().equals(GameGridAdapter.AREA_WRITABLE)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean checkHashUnderOrUpChild(int position) {
+
+		View upChild = this.gridView.getChildAt(position - width);
+		View underChild = this.gridView.getChildAt(position + width);
+		if (upChild != null || underChild != null) {
+			if (upChild != null) {
+				if (upChild.getTag().equals(GameGridAdapter.AREA_WRITABLE)) {
+					return true;
+				}
+			}
+
+			if (underChild != null) {
+				if (underChild.getTag().equals(GameGridAdapter.AREA_WRITABLE)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.play_menu, menu);
 		return true;
 	}
 
-	private Word getWord(int x, int y, boolean horizontal) {
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
 
-		Word horizontalWord = null;
-		Word verticalWord = null;
+		if (id == R.id.action_check) {
 
-		for (Word word : words) {
+			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			dialog.setMessage("Do you want to finish ?");
+			dialog.setCancelable(false);
+			dialog.setPositiveButton("OK",
+					new DialogInterface.OnClickListener() {
 
-			Position p = word.getPosition();
-			if (x >= p.getX() && x <= word.getMaxX()) {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
 
-				if (y >= p.getY() && y <= word.getMaxY()) {
-					if (p.getDir() == 0) {
-						horizontalWord = word;
-					} else {
-						verticalWord = word;
-					}
-				}
-			}
+							currentMode = GRID_MODE.CHECK;
+							List<Integer> positions = getListPositionWrong();
+							showError(positions);
+							gridAdapter.notifyDataSetChanged();
+						}
+					});
+
+			dialog.setNegativeButton("Cancel",
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+
+							dialog.cancel();
+						}
+					});
+
+			dialog.create().show();
+			;
 
 		}
 
-		if (horizontal) {
-			return (horizontalWord != null) ? horizontalWord : verticalWord;
-		} else {
-			return (verticalWord != null) ? verticalWord : horizontalWord;
-		}
-
+		return super.onOptionsItemSelected(item);
 	}
 
-	private void clearSelection() {
-		for (View selected : selectedArea)
-			selected.setBackgroundResource(R.drawable.area_empty);
-		selectedArea.clear();
+	private List<Integer> getListPositionWrong() {
+
+		ArrayList<Integer> positions = new ArrayList<Integer>();
+
+		String[][] answer = this.gridAdapter.getAnswer();
+
+		String[][] correctAnswer = factory.getBoard();
+
+		for (int i = 0; i < this.width; i++) {
+			for (int j = 0; j < this.height; j++) {
+
+				if (answer[i][j] != null) {
+					if (!answer[i][j].equalsIgnoreCase(correctAnswer[i][j])) {
+
+						int p = i * this.width + j;
+						positions.add(p);
+					}
+				}
+
+			}
+		}
+
+		return positions;
+	}
+
+	private void showError(List<Integer> positions) {
+
+		for (Integer i : positions) {
+
+			TextView tv = (TextView) this.gridView.getChildAt(i);
+
+			if (tv != null) {
+				tv.setTextColor(this.getResources().getColor(R.color.wrong));
+			}
+		}
+	}
+
+	private int getTimeMinutes(double end) {
+
+		double time = (end - this.initialTime) / 60;
+
+		return (int) time;
 	}
 
 }
