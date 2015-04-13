@@ -1,13 +1,13 @@
 package org.com.myapp.activity;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import org.com.myapp.AppInitial;
 import org.com.myapp.adapter.GameGridAdapter;
 import org.com.myapp.factory.CrossWordFactory;
+import org.com.myapp.factory.MatchProcess;
 import org.com.myapp.keyboard.KeyboardView;
 import org.com.myapp.keyboard.KeyboardViewInterface;
 import org.com.myapp.model.Item;
@@ -67,13 +67,16 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 	private View view;
 
 	private double initialTime;
+	
+	
+	private Match m;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_play);
 
-		Match m = (Match) getIntent().getSerializableExtra("match");
+		m = (Match) getIntent().getSerializableExtra("match");
 
 		if (m != null) {
 			entries = (ArrayList<Word>) createListWord(m);
@@ -491,6 +494,8 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 							List<Integer> positions = getListPositionWrong();
 							showError(positions);
 							gridAdapter.notifyDataSetChanged();
+							MatchProcess process = new MatchProcess();
+							process.sendRequestUpdateScore(m.getId(), 70, 15);
 						}
 					});
 

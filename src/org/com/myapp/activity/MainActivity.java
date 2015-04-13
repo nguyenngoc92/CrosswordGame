@@ -15,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,9 +37,11 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		/*String username = getIntent().getStringExtra(AppInitial.USER_NAME);
-		String score = getIntent().getStringExtra(AppInitial.SCORE);
-		String rank = getIntent().getStringExtra(AppInitial.RANK);*/
+		/*
+		 * String username = getIntent().getStringExtra(AppInitial.USER_NAME);
+		 * String score = getIntent().getStringExtra(AppInitial.SCORE); String
+		 * rank = getIntent().getStringExtra(AppInitial.RANK);
+		 */
 
 		init();
 	}
@@ -66,6 +69,15 @@ public class MainActivity extends ActionBarActivity {
 	private void sendRequestGetMatch() {
 
 		class SendGetMatchGetReqAsyncTask extends AsyncTask<Void, Void, String> {
+
+			ProgressDialog progressDialog;
+
+			@Override
+			protected void onPreExecute() {
+				progressDialog = new ProgressDialog(MainActivity.this);
+				progressDialog.setMessage("Authenticating user...");
+				progressDialog.show();
+			}
 
 			@Override
 			protected String doInBackground(Void... params) {
@@ -97,6 +109,7 @@ public class MainActivity extends ActionBarActivity {
 			protected void onPostExecute(String result) {
 				super.onPostExecute(result);
 
+				progressDialog.dismiss();
 				if (result != null) {
 
 					try {

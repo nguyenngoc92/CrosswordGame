@@ -10,12 +10,13 @@ public class AppInitial {
 
 	public static int sizeBoard = 15;
 
-	
 	public static String loginUrl = "http://192.168.1.69:8080/login";
 	public static String userInforUrl = "http://192.168.1.69:8080/user/userinfor";
 
 	public static String getMatchUrl = "http://192.168.1.69:8080/user/match/getmatch";
-
+	public static String updateScoreurl = "http://192.168.1.69:8080/user/updatescore";
+	
+	
 	public static final int REQUEST_PREFERENCES = 2;
 	public static final float KEYBOARD_OVERLAY_OFFSET = 90;
 	// intent infor

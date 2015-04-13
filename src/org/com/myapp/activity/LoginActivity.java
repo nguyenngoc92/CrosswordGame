@@ -18,6 +18,7 @@ import org.com.myapp.inet.HttpConnection;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -94,6 +95,16 @@ public class LoginActivity extends ActionBarActivity {
 
 		class SendLoginPostReqAsyncTask extends AsyncTask<String, Void, String> {
 
+			ProgressDialog progressDialog;
+
+			@Override
+			protected void onPreExecute() {
+
+				progressDialog = new ProgressDialog(LoginActivity.this);
+				progressDialog.setMessage("Authenticating user...");
+				progressDialog.show();
+			}
+
 			@Override
 			protected String doInBackground(String... params) {
 
@@ -157,6 +168,7 @@ public class LoginActivity extends ActionBarActivity {
 
 				super.onPostExecute(result);
 
+				progressDialog.dismiss();
 				if (!result.equals("SUCCESS")) {
 					tvErrorLogin.setText("Wrong username or password !");
 				} else {
