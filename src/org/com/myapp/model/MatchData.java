@@ -2,26 +2,27 @@ package org.com.myapp.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
-public class Match implements Serializable  {
+public class MatchData implements Serializable  {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2297080668276932816L;
+	private static final long serialVersionUID = 1L;
 	private int id;
 	private String title;
 	private int level;
 	private int competition;
+	private List<ItemData> items;
 
-	private ArrayList<Item> items;
 
-	public Match() {
+	public MatchData() {
 
 	}
 
-	public Match(int id, String title, int level, int competition,
-			ArrayList<Item> items) {
+	public MatchData(int id, String title, int level, int competition,
+			ArrayList<ItemData> items) {
 		this.id = id;
 		this.title = title;
 		this.level = level;
@@ -61,12 +62,13 @@ public class Match implements Serializable  {
 		this.competition = competition;
 	}
 
-	public ArrayList<Item> getItems() {
+	public List<ItemData> getItems() {
 		return items;
 	}
 
-	public void setItems(ArrayList<Item> items) {
+	public void setItems(List<ItemData> items) {
 		this.items = items;
 	}
+
 
 }

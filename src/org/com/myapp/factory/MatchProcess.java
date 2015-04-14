@@ -1,19 +1,21 @@
 package org.com.myapp.factory;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpStatus;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicNameValuePair;
 import org.com.myapp.AppInitial;
 import org.com.myapp.inet.HttpConnection;
 import org.com.myapp.model.Position;
 import org.com.myapp.model.Word;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import android.os.AsyncTask;
 
@@ -48,7 +50,7 @@ public class MatchProcess {
 			Word word = getWord(i, words);
 			if (word != null) {
 
-				idList.add(word.getItem().getIdItem());
+				idList.add(word.getItem().getId());
 			}
 
 		}
@@ -95,32 +97,64 @@ public class MatchProcess {
 
 	public void sendRequestUpdateScore(int idMatch, int score, int time) {
 
-		class SendUpdateScoreGetReqAsyncTask extends
-				AsyncTask<Integer, Void, HttpStatus> {
+		/*class SendUpdateScoreGetReqAsyncTask extends
+				AsyncTask<Integer, Void, String> {
 
 			@Override
-			protected HttpStatus doInBackground(Integer... params) {
+			protected String doInBackground(Integer... params) {
 
 				int match = params[0];
 				int score = params[1];
 				int time = params[2];
-				RestTemplate restTemplate = new RestTemplate();
 
-				MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
-				map.add("matchId", match);
-				map.add("score", score);
-				map.add("time", time);
-				map.add("unit", "minute");
+				HttpClient httpClient = httpConnection.getHttpClient();
+				HttpPost httpPost = new HttpPost(AppInitial.updateScoreurl);
 
-				HttpStatus http = restTemplate.postForObject(
-						AppInitial.updateScoreurl, null, HttpStatus.class, map);
+				BasicNameValuePair matchBasicNameValuePair = new BasicNameValuePair(
+						"matchId", match + "");
+				BasicNameValuePair scoreBasicNameValuePair = new BasicNameValuePair(
+						"score", score + "");
+				BasicNameValuePair timeBasicNameValuePair = new BasicNameValuePair(
+						"time", time + "");
 
-				return http;
+				List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>();
+
+				nameValuePairList.add(matchBasicNameValuePair);
+				nameValuePairList.add(scoreBasicNameValuePair);
+				nameValuePairList.add(timeBasicNameValuePair);
+
+				try {
+					httpPost.setEntity(new UrlEncodedFormEntity(
+							nameValuePairList));
+
+					try {
+
+						HttpResponse httpResponse = httpClient
+								.execute(httpPost);
+
+						return httpConnection.getResponse(httpResponse);
+					} catch (ClientProtocolException cpe) {
+
+						System.out.println("Firstption caz of HttpResponese :"
+								+ cpe);
+						cpe.printStackTrace();
+					} catch (IOException ioe) {
+						System.out.println("Secondption caz of HttpResponse :"
+								+ ioe);
+						ioe.printStackTrace();
+					}
+
+				} catch (UnsupportedEncodingException uee) {
+
+				}
+
+				return null;
 			}
 
 			@Override
-			protected void onPostExecute(HttpStatus result) {
+			protected void onPostExecute(String result) {
 
+				System.out.println("Result: " + result);
 				super.onPostExecute(result);
 			}
 
@@ -148,8 +182,8 @@ public class MatchProcess {
 			}
 
 		}
-
-		SendRequestUpdateItemTask sendRequestUpdateItemTask = new SendRequestUpdateItemTask();
+*/
+		//SendRequestUpdateItemTask sendRequestUpdateItemTask = new SendRequestUpdateItemTask();
 	}
 
 	public int getScore() {

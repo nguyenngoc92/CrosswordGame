@@ -1,18 +1,25 @@
 package org.com.myapp.model;
 
-public class Word {
+import java.io.Serializable;
+
+public class Word implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private int order;
 
 	private Position position;
 
-	private Item item;
+	private ItemData item;
 
 	public Word() {
 
 	}
 
-	public Word(int _order, Position _position, Item _item) {
+	public Word(int _order, Position _position, ItemData _item) {
 
 		this.order = _order;
 		this.position = _position;
@@ -53,11 +60,11 @@ public class Word {
 		this.position = position;
 	}
 
-	public Item getItem() {
+	public ItemData getItem() {
 		return item;
 	}
 
-	public void setItem(Item item) {
+	public void setItem(ItemData item) {
 		this.item = item;
 	}
 

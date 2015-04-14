@@ -1,22 +1,20 @@
 package org.com.myapp.activity;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
 import org.com.myapp.AppInitial;
 import org.com.myapp.inet.HttpConnection;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -38,10 +36,6 @@ public class LoginActivity extends ActionBarActivity {
 	private TextView tvForgotPassword;
 	private TextView tvErrorLogin;
 
-	// json object user
-	private static final String TAG_USERNAME = "username";
-	private static final String TAG_SCORE = "score";
-	private static final String TAG_RANK = "rank";
 
 	private HttpConnection httpConnection = HttpConnection.getInstance();
 
@@ -91,7 +85,7 @@ public class LoginActivity extends ActionBarActivity {
 		});
 	}
 
-	private void sendPostRequestLogin(String email, String password) {
+	private void sendPostRequestLogin(final String email, final String password) {
 
 		class SendLoginPostReqAsyncTask extends AsyncTask<String, Void, String> {
 
@@ -103,79 +97,62 @@ public class LoginActivity extends ActionBarActivity {
 				progressDialog = new ProgressDialog(LoginActivity.this);
 				progressDialog.setMessage("Authenticating user...");
 				progressDialog.show();
+
+				super.onPreExecute();
 			}
 
 			@Override
 			protected String doInBackground(String... params) {
+				String email = params[0];
+				String password = params[1];
 
-				String paramUsername = params[0];
-				String paramPassword = params[1];
+				List<HttpMessageConverter<?>> messageConverters = new LinkedList<HttpMessageConverter<?>>();
 
-				System.out.println("*** doInBackground ** paramUsername "
-						+ paramUsername + " paramPassword :" + paramPassword);
+				messageConverters.add(new FormHttpMessageConverter());
+				messageConverters.add(new StringHttpMessageConverter());
 
-				HttpClient httpClient = httpConnection.getHttpClient();
+				MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+				map.add("email", email);
+				map.add("password", password);
 
-				HttpPost httpPost = new HttpPost(AppInitial.loginUrl);
+				RestTemplate restTemplate = HttpConnection.getInstance()
+						.getRestTemplate();
+				restTemplate.setMessageConverters(messageConverters);
+				HttpHeaders requestHeaders = new HttpHeaders();
+				requestHeaders
+						.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-				BasicNameValuePair usernameBasicNameValuePair = new BasicNameValuePair(
-						"email", paramUsername);
-				BasicNameValuePair passwordBasicNameValuePair = new BasicNameValuePair(
-						"password", paramPassword);
+				org.springframework.http.HttpEntity<MultiValueMap<String, String>> entity = new org.springframework.http.HttpEntity<MultiValueMap<String, String>>(
+						map, requestHeaders);
 
-				List<NameValuePair> nameValuePairList = new ArrayList<NameValuePair>();
+				ResponseEntity<String> result = restTemplate.exchange(
+						AppInitial.loginUrl, HttpMethod.POST, entity,
+						String.class);
 
-				nameValuePairList.add(usernameBasicNameValuePair);
-				nameValuePairList.add(passwordBasicNameValuePair);
+				HttpHeaders respHeaders = result.getHeaders();
+				String cookies = respHeaders.getFirst("Set-Cookie");
 
-				try {
+				System.out.println(cookies);
+				return cookies;
 
-					UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(
-							nameValuePairList);
-
-					httpPost.setEntity(urlEncodedFormEntity);
-
-					try {
-
-						HttpResponse httpResponse = httpClient
-								.execute(httpPost);
-
-						return httpConnection.getResponse(httpResponse);
-					} catch (ClientProtocolException cpe) {
-
-						System.out.println("Firstption caz of HttpResponese :"
-								+ cpe);
-						cpe.printStackTrace();
-					} catch (IOException ioe) {
-						System.out.println("Secondption caz of HttpResponse :"
-								+ ioe);
-						ioe.printStackTrace();
-					}
-
-				} catch (UnsupportedEncodingException uee) {
-
-					System.out
-							.println("Anption given because of UrlEncodedFormEntity argument :"
-									+ uee);
-					uee.printStackTrace();
-				}
-
-				return null;
 			}
 
 			@Override
 			protected void onPostExecute(String result) {
 
 				super.onPostExecute(result);
-
 				progressDialog.dismiss();
-				if (!result.equals("SUCCESS")) {
-					tvErrorLogin.setText("Wrong username or password !");
-				} else {
 
-					sendRequestGetUserInfor();
+				if (result.contains("JSESSIONID")) {
+					RestTemplate restTemplate = httpConnection
+							.createRestTemplate(email, password,
+									"192.168.1.69", 8080);
+					httpConnection.setRestTemplate(restTemplate);
+					Intent intent = new Intent(getApplication()
+							.getApplicationContext(), MainActivity.class);
+					startActivity(intent);
+
 				}
-				System.out.println("Result: " + result);
 
 			}
 
@@ -183,73 +160,7 @@ public class LoginActivity extends ActionBarActivity {
 
 		SendLoginPostReqAsyncTask sendPostReqAsyncTask = new SendLoginPostReqAsyncTask();
 		sendPostReqAsyncTask.execute(email, password);
-
 	}
 
-	private void sendRequestGetUserInfor() {
-
-		class SendGetUserInforReqAsyncTask extends
-				AsyncTask<Void, Void, String> {
-
-			@Override
-			protected String doInBackground(Void... params) {
-				HttpClient httpClient = httpConnection.getHttpClient();
-
-				HttpGet httpGet = new HttpGet(AppInitial.userInforUrl);
-
-				try {
-
-					HttpResponse httpResponse = httpClient.execute(httpGet);
-
-					return httpConnection.getResponse(httpResponse);
-				} catch (ClientProtocolException cpe) {
-
-					System.out.println("Firstption caz of HttpResponese :"
-							+ cpe);
-					cpe.printStackTrace();
-				} catch (IOException ioe) {
-					System.out.println("Secondption caz of HttpResponse :"
-							+ ioe);
-					ioe.printStackTrace();
-				}
-
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(String result) {
-
-				super.onPostExecute(result);
-
-				if (result != null) {
-					try {
-						JSONObject reader = new JSONObject(result);
-
-						String username = reader.getString(TAG_USERNAME);
-						int score = reader.getInt(TAG_SCORE);
-						String rank = reader.getString(TAG_RANK);
-
-						// start main activity
-						Intent intent = new Intent(getApplication()
-								.getApplicationContext(), MainActivity.class);
-						intent.putExtra(AppInitial.USER_NAME, username);
-						intent.putExtra(AppInitial.SCORE, score);
-						intent.putExtra(AppInitial.RANK, rank);
-						startActivity(intent);
-
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				}
-
-			}
-
-		}
-
-		SendGetUserInforReqAsyncTask sendGetUserInforReqAsyncTask = new SendGetUserInforReqAsyncTask();
-		sendGetUserInforReqAsyncTask.execute(null, null);
-	}
 
 }

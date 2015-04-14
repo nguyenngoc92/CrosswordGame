@@ -10,8 +10,8 @@ import org.com.myapp.factory.CrossWordFactory;
 import org.com.myapp.factory.MatchProcess;
 import org.com.myapp.keyboard.KeyboardView;
 import org.com.myapp.keyboard.KeyboardViewInterface;
-import org.com.myapp.model.Item;
-import org.com.myapp.model.Match;
+import org.com.myapp.model.ItemData;
+import org.com.myapp.model.MatchData;
 import org.com.myapp.model.Position;
 import org.com.myapp.model.Word;
 
@@ -69,14 +69,14 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 	private double initialTime;
 	
 	
-	private Match m;
+	private MatchData m;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_play);
 
-		m = (Match) getIntent().getSerializableExtra("match");
+		m = (MatchData) getIntent().getSerializableExtra("match");
 
 		if (m != null) {
 			entries = (ArrayList<Word>) createListWord(m);
@@ -120,14 +120,14 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 
 	}
 
-	private List<Word> createListWord(Match match) {
+	private List<Word> createListWord(MatchData match) {
 
-		List<Item> items = match.getItems();
+		List<ItemData> items = match.getItems();
 		Collections.sort(items);
 
 		ArrayList<Word> words = new ArrayList<Word>();
 		int order = 0;
-		for (Item item : items) {
+		for (ItemData item : items) {
 
 			Word word = new Word(order, new Position(), item);
 			words.add(word);
