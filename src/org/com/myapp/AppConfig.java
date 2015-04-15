@@ -6,7 +6,7 @@ import org.com.myapp.model.ItemData;
 import org.com.myapp.model.Position;
 import org.com.myapp.model.Word;
 
-public class AppInitial {
+public class AppConfig {
 
 	public static String host = "192.168.1.69";
 	public static int port = 8080;
@@ -16,7 +16,7 @@ public class AppInitial {
 	public static String userInforUrl = "http://192.168.1.69:8080/user/userinfor";
 
 	public static String getMatchUrl = "http://192.168.1.69:8080/user/match/getmatch";
-	public static String updateScoreurl = "http://192.168.1.69:8080/user/updatescore";
+	public static String updateScoreUrl = "http://192.168.1.69:8080/user/updatescore";
 
 	public static final int REQUEST_PREFERENCES = 2;
 	public static final float KEYBOARD_OVERLAY_OFFSET = 90;

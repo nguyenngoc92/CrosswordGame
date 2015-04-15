@@ -1,6 +1,6 @@
 package org.com.myapp.activity;
 
-import org.com.myapp.AppInitial;
+import org.com.myapp.AppConfig;
 import org.com.myapp.inet.HttpConnection;
 import org.com.myapp.model.MatchData;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -20,8 +20,6 @@ import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 
-	private Button btnPlay;
-
 	private HttpConnection httpConnection = HttpConnection.getInstance();
 
 	@Override
@@ -33,7 +31,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	private void init() {
-		btnPlay = (Button) findViewById(R.id.btnPlay);
+		Button btnPlay = (Button) findViewById(R.id.btnPlay);
 
 		btnPlay.setOnClickListener(new View.OnClickListener() {
 
@@ -48,6 +46,21 @@ public class MainActivity extends ActionBarActivity {
 					toast.show();
 				}
 
+			}
+		});
+
+		Button btnRank = (Button) findViewById(R.id.btnRank);
+
+		btnRank.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+
+				
+				
+				
+				
+				
 			}
 		});
 	}
@@ -75,8 +88,9 @@ public class MainActivity extends ActionBarActivity {
 							.getRestTemplate();
 					restTemplate.getMessageConverters().add(
 							new MappingJackson2HttpMessageConverter());
+
 					MatchData match = restTemplate.getForObject(
-							AppInitial.getMatchUrl, MatchData.class);
+							AppConfig.getMatchUrl, MatchData.class);
 
 					return match;
 				} catch (HttpClientErrorException e) {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.com.myapp.AppInitial;
+import org.com.myapp.AppConfig;
 import org.com.myapp.adapter.GameGridAdapter;
 import org.com.myapp.factory.CrossWordFactory;
 import org.com.myapp.factory.MatchProcess;
@@ -51,8 +51,8 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 	private ArrayList<View> selectedArea = new ArrayList<View>();
 	private ArrayList<View> currentArea = new ArrayList<View>();
 
-	private int width = AppInitial.sizeBoard;
-	private int height = AppInitial.sizeBoard;
+	private int width = AppConfig.sizeBoard;
+	private int height = AppConfig.sizeBoard;
 
 	private boolean dowIsPlayable;
 
@@ -67,8 +67,7 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 	private View view;
 
 	private double initialTime;
-	
-	
+
 	private MatchData m;
 
 	@Override
@@ -221,7 +220,7 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 			int offsetX = (this.keyboardOverlay.getWidth() - width) / 2;
 			int offsetY = (int) TypedValue.applyDimension(
 					TypedValue.COMPLEX_UNIT_DIP,
-					AppInitial.KEYBOARD_OVERLAY_OFFSET, getResources()
+					AppConfig.KEYBOARD_OVERLAY_OFFSET, getResources()
 							.getDisplayMetrics());
 			FrameLayout.LayoutParams lp = (LayoutParams) this.keyboardOverlay
 					.getLayoutParams();
@@ -494,8 +493,12 @@ public class PlayActivity extends ActionBarActivity implements OnTouchListener,
 							List<Integer> positions = getListPositionWrong();
 							showError(positions);
 							gridAdapter.notifyDataSetChanged();
-							MatchProcess process = new MatchProcess();
-							process.sendRequestUpdateScore(m.getId(), 70, 15);
+							
+							
+							// MatchProcess process = new MatchProcess();
+							// process.sendRequestUpdateScore(m.getId(), 70,
+							// 15);
+							// process.getUserInfor();
 						}
 					});
 

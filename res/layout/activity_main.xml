@@ -12,21 +12,21 @@
         android:text="@string/Start" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btnRank"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/btnPlay"
         android:layout_below="@+id/btnPlay"
         android:layout_marginTop="75dp"
-        android:text="Button" />
+        android:text="@string/Rank" />
 
     <Button
         android:id="@+id/button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/button2"
-        android:layout_below="@+id/button2"
-        android:layout_marginTop="70dp"
+        android:layout_alignLeft="@+id/btnRank"
+        android:layout_below="@+id/btnRank"
+        android:layout_marginTop="87dp"
         android:text="Button" />
     
 </RelativeLayout>

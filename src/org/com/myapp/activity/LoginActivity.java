@@ -3,7 +3,7 @@ package org.com.myapp.activity;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.com.myapp.AppInitial;
+import org.com.myapp.AppConfig;
 import org.com.myapp.inet.HttpConnection;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -35,7 +35,6 @@ public class LoginActivity extends ActionBarActivity {
 	private Button btnLogin;
 	private TextView tvForgotPassword;
 	private TextView tvErrorLogin;
-
 
 	private HttpConnection httpConnection = HttpConnection.getInstance();
 
@@ -126,7 +125,7 @@ public class LoginActivity extends ActionBarActivity {
 						map, requestHeaders);
 
 				ResponseEntity<String> result = restTemplate.exchange(
-						AppInitial.loginUrl, HttpMethod.POST, entity,
+						AppConfig.loginUrl, HttpMethod.POST, entity,
 						String.class);
 
 				HttpHeaders respHeaders = result.getHeaders();
@@ -146,7 +145,7 @@ public class LoginActivity extends ActionBarActivity {
 				if (result.contains("JSESSIONID")) {
 					RestTemplate restTemplate = httpConnection
 							.createRestTemplate(email, password,
-									"192.168.1.69", 8080);
+									AppConfig.host, AppConfig.port);
 					httpConnection.setRestTemplate(restTemplate);
 					Intent intent = new Intent(getApplication()
 							.getApplicationContext(), MainActivity.class);
@@ -161,6 +160,5 @@ public class LoginActivity extends ActionBarActivity {
 		SendLoginPostReqAsyncTask sendPostReqAsyncTask = new SendLoginPostReqAsyncTask();
 		sendPostReqAsyncTask.execute(email, password);
 	}
-
 
 }
