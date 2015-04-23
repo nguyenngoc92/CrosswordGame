@@ -13,5 +13,13 @@
     <string name="password">Password</string>
     <string name="Start">start</string>
     <string name="Rank">rank</string>
-
+    <string name ="create_account">Create new account</string>
+    <string name="have_account">Have account ?</string>
+    
+    
+    <string name ="finish">Finish</string>
+    <string name ="solve">Solve</string>
+    <string name="user_name">UserName</string>
+    <string name="re_password">Repassword</string>
+	
 </resources>

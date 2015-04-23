@@ -1,6 +1,7 @@
 package org.com.myapp.activity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.com.myapp.AppConfig;
 import org.com.myapp.adapter.GridAdapter;
@@ -13,10 +14,14 @@ import org.com.myapp.model.MatchData;
 import org.com.myapp.model.Position;
 import org.com.myapp.model.Word;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -110,14 +115,13 @@ public class GameActivity extends ActionBarActivity implements
 
 			this.keyboardView = (KeyboardView) findViewById(R.id.keyboard);
 			this.keyboardView.setDelegate(this);
-			
+
 			android.view.ViewGroup.LayoutParams KeyboardParams = this.keyboardView
 					.getLayoutParams();
 			KeyboardParams.height = keyboardHeight;
 			this.keyboardView.setLayoutParams(KeyboardParams);
 
 			this.keyboardOverlay = (TextView) findViewById(R.id.keyboard_overlay);
-
 
 		} else {
 			System.out
@@ -128,6 +132,82 @@ public class GameActivity extends ActionBarActivity implements
 			this.finish();
 		}
 
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		getMenuInflater().inflate(R.menu.game_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_check) {
+
+			this.currentMode = GRID_MODE.CHECK;
+			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			dialog.setMessage("Do you want to finish ?");
+			dialog.setCancelable(false);
+			dialog.setPositiveButton("OK",
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+
+							currentMode = GRID_MODE.CHECK;
+							List<Integer> positions = getListPositionWrong();
+							showError(positions);
+							gridAdapter.notifyDataSetChanged();
+
+						}
+					});
+
+			dialog.setNegativeButton("Cancel",
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+
+							dialog.cancel();
+						}
+					});
+
+			dialog.create().show();
+
+			return true;
+		}
+
+		if (id == R.id.action_solve) {
+
+			if (currentMode == GRID_MODE.CHECK) {
+
+				this.currentMode = GRID_MODE.SOLVE;
+
+			} else {
+
+				Toast t = Toast.makeText(this,
+						"You must finish your match !!!", Toast.LENGTH_SHORT);
+				t.show();
+			}
+
+			return true;
+
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	protected void showError(List<Integer> positions) {
+
+	}
+
+	protected List<Integer> getListPositionWrong() {
+
+		return null;
 	}
 
 	@Override
@@ -452,21 +532,13 @@ public class GameActivity extends ActionBarActivity implements
 	public void setDraft(boolean isDraft) {
 
 	}
-	
-	
-	private void checkAnswer(){
-		
-		
-		
+
+	private void checkAnswer() {
+
 	}
-	
-	private void solveAnswer(){
-		
-		
-		
-		
+
+	private void solveAnswer() {
+
 	}
-	
-	
 
 }
