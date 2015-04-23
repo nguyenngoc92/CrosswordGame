@@ -4,5 +4,14 @@
     <string name="app_name">CrosswordGame</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_crossword_generated">Generated crossword</string>
+    <string name="button_web_view">Show web view</string>
+    <string name="button_another_view">Show another view</string>
+    <string name="login">Login</string>
+    <string name="forgotPass">Forgot password ?</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="Start">start</string>
+    <string name="Rank">rank</string>
 
 </resources>
