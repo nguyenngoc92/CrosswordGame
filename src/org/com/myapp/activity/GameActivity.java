@@ -1,6 +1,7 @@
 package org.com.myapp.activity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.com.myapp.AppConfig;
@@ -10,12 +11,14 @@ import org.com.myapp.keyboard.KeyboardView;
 import org.com.myapp.keyboard.KeyboardViewInterface;
 import org.com.myapp.model.Cell;
 import org.com.myapp.model.Direction;
+import org.com.myapp.model.ItemData;
 import org.com.myapp.model.MatchData;
 import org.com.myapp.model.Position;
 import org.com.myapp.model.Word;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.TypedValue;
@@ -50,7 +53,7 @@ public class GameActivity extends ActionBarActivity implements
 
 	private GridAdapter gridAdapter;
 
-	private ArrayList<Word> words = AppConfig.getWords();
+	private ArrayList<Word> words = new ArrayList<Word>();
 
 	private Cell[][] gridCell;
 
@@ -80,8 +83,28 @@ public class GameActivity extends ActionBarActivity implements
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
+
+		m = (MatchData) getIntent().getSerializableExtra("match");
+
+		words.addAll(this.createWordList(m));
 		this.initial();
 
+	}
+
+	private ArrayList<Word> createWordList(MatchData match) {
+
+		ArrayList<Word> wArrayList = new ArrayList<Word>();
+
+		List<ItemData> items = match.getItems();
+		Collections.sort(items);
+		for (int i = 0; i < items.size(); i++) {
+
+			Word w = new Word(i + 1, new Position(), items.get(i));
+			wArrayList.add(w);
+
+		}
+
+		return wArrayList;
 	}
 
 	private void initial() {
@@ -196,6 +219,15 @@ public class GameActivity extends ActionBarActivity implements
 			}
 
 			return true;
+
+		}
+
+		if (id == R.id.action_getRankByMatch) {
+
+			Intent intent = new Intent(getApplicationContext(),
+					MatchRankActivity.class);
+			intent.putExtra("ID", m.getId());
+			startActivity(intent);
 
 		}
 		return super.onOptionsItemSelected(item);

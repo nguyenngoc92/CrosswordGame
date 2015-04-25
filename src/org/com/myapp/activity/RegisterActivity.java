@@ -3,15 +3,18 @@ package org.com.myapp.activity;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.com.myapp.AppConfig;
 import org.com.myapp.inet.HttpConnection;
+import org.com.myapp.model.RegisterForm;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -50,6 +53,17 @@ public class RegisterActivity extends ActionBarActivity {
 		this.tvLogin = (TextView) findViewById(R.id.tvLogin);
 		this.tvRegisterError = (TextView) findViewById(R.id.tvRegisterError);
 
+		tvLogin.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				Intent intent = new Intent(getApplicationContext(),
+						LoginActivity.class);
+				startActivity(intent);
+
+			}
+		});
 		this.btnRegister = (Button) findViewById(R.id.btnRegister);
 		btnRegister.setOnClickListener(new View.OnClickListener() {
 
@@ -72,8 +86,9 @@ public class RegisterActivity extends ActionBarActivity {
 					if (httpConnection
 							.checkNetWorkState(getApplicationContext())) {
 
-						this.sendPostRequestRegister(username, email,password,re_password);
-						
+						sendPostRequestRegister(username, email, password,
+								re_password);
+
 					} else {
 						Toast toast = Toast
 								.makeText(getApplicationContext(),
@@ -83,71 +98,6 @@ public class RegisterActivity extends ActionBarActivity {
 					}
 
 				}
-			}
-
-			private void sendPostRequestRegister(String username, String email,
-					String password, String re_password) {
-				
-				
-				class SendRegisterPostReqAsyncTask extends AsyncTask<String, Void, String>{
-
-					ProgressDialog progressDialog;
-					
-					@Override
-					protected void onPreExecute() {
-						
-						progressDialog = new ProgressDialog(getApplicationContext());
-						progressDialog.setMessage("Create user...");
-						progressDialog.show();
-						
-						
-						super.onPreExecute();
-					}
-					
-				
-
-					@Override
-					protected String doInBackground(String... params) {
-						
-						
-						String username = params[0];
-						String email = params[1];
-						String password = params[2];
-						String re_password = params[3];
-						
-						
-						List<HttpMessageConverter<?>> messageConverters = new LinkedList<HttpMessageConverter<?>>();
-
-						messageConverters.add(new FormHttpMessageConverter());
-						messageConverters.add(new StringHttpMessageConverter());
-						messageConverters.add(new MappingJackson2HttpMessageConverter());
-
-						MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-						
-						
-						
-						
-						
-						
-						
-						
-						return null;
-					}
-					
-
-					@Override
-					protected void onPostExecute(String result) {
-						// TODO Auto-generated method stub
-						super.onPostExecute(result);
-						progressDialog.dismiss();
-					}
-					
-				}
-				
-				
-				
-				
-				
 			}
 
 			private String validateForm(String username, String email,
@@ -183,6 +133,89 @@ public class RegisterActivity extends ActionBarActivity {
 						.matches();
 			}
 		});
+
+	}
+
+	private void sendPostRequestRegister(String username, String email,
+			String password, String re_password) {
+
+		class SendRegisterPostReqAsyncTask extends
+				AsyncTask<String, Void, String> {
+
+			ProgressDialog progressDialog;
+
+			@Override
+			protected void onPreExecute() {
+
+				progressDialog = new ProgressDialog(RegisterActivity.this);
+				progressDialog.setMessage("Create user...");
+				progressDialog.show();
+
+				super.onPreExecute();
+			}
+
+			@Override
+			protected String doInBackground(String... params) {
+
+				String username = params[0];
+				String email = params[1];
+				String password = params[2];
+				String re_password = params[3];
+
+				List<HttpMessageConverter<?>> messageConverters = new LinkedList<HttpMessageConverter<?>>();
+
+				messageConverters.add(new FormHttpMessageConverter());
+				messageConverters.add(new StringHttpMessageConverter());
+				messageConverters
+						.add(new MappingJackson2HttpMessageConverter());
+
+				try {
+					RestTemplate restTemplate = httpConnection
+							.getRestTemplate();
+					restTemplate.setMessageConverters(messageConverters);
+
+					RegisterForm registerForm = new RegisterForm(username,
+							email, password, re_password);
+
+					String result = restTemplate.postForObject(
+							AppConfig.registerUrl, registerForm, String.class);
+
+					System.out.println(result);
+					return result;
+
+				} catch (HttpClientErrorException e) {
+					e.printStackTrace();
+
+				}
+
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(String result) {
+
+				super.onPostExecute(result);
+				progressDialog.dismiss();
+				if (result != null) {
+
+					if (result == "SUCCESS") {
+
+						Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+						startActivity(intent);
+					} else if (result == "FAIL") {
+						tvRegisterError.setText("Register fail !!!");
+					}
+				} else {
+
+					tvRegisterError.setText("Email has been use !");
+				}
+
+			}
+
+		}
+
+		SendRegisterPostReqAsyncTask request = new SendRegisterPostReqAsyncTask();
+		request.execute(username, email, password, re_password);
 
 	}
 

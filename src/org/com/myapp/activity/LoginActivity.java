@@ -35,6 +35,7 @@ public class LoginActivity extends ActionBarActivity {
 	private Button btnLogin;
 	private TextView tvForgotPassword;
 	private TextView tvErrorLogin;
+	private TextView tvCreateAccount;
 
 	private HttpConnection httpConnection = HttpConnection.getInstance();
 
@@ -61,8 +62,14 @@ public class LoginActivity extends ActionBarActivity {
 
 				if (httpConnection.checkNetWorkState(getApplicationContext())) {
 
-					sendPostRequestLogin(edtEmail.getText().toString(),
-							edtPassword.getText().toString());
+					String str = this.validateForm(edtEmail.getText()
+							.toString(), edtPassword.getText().toString());
+					if (str != null) {
+						tvErrorLogin.setText(str);
+					} else {
+						sendPostRequestLogin(edtEmail.getText().toString(),
+								edtPassword.getText().toString());
+					}
 
 				} else {
 
@@ -72,13 +79,43 @@ public class LoginActivity extends ActionBarActivity {
 				}
 
 			}
+
+			private String validateForm(String email, String password) {
+
+				if (email == null || email.length() == 0) {
+					return "Email cannot blank !";
+				} else if (email != null
+						&& !android.util.Patterns.EMAIL_ADDRESS.matcher(email)
+								.matches()) {
+
+					return "Invalid email !";
+
+				} else if (password == null || password.length() == 0) {
+
+					return "Password cannot blank !";
+				}
+
+				return null;
+
+			}
+		});
+
+		tvCreateAccount = (TextView) findViewById(R.id.tvCreateAccount);
+		tvCreateAccount.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				Intent intent = new Intent(getApplicationContext(),
+						RegisterActivity.class);
+				startActivity(intent);
+			}
 		});
 
 		tvForgotPassword.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 
 			}
 		});
@@ -151,6 +188,8 @@ public class LoginActivity extends ActionBarActivity {
 							.getApplicationContext(), MainActivity.class);
 					startActivity(intent);
 
+				} else {
+					tvErrorLogin.setText("Wrong username or password !");
 				}
 
 			}

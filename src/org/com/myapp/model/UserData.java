@@ -10,6 +10,7 @@ public class UserData implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String username;
 	private double score;
+	private float time;
 	private double rank;
 
 	public String getUsername() {
@@ -35,5 +36,15 @@ public class UserData implements Serializable {
 	public void setRank(double rank) {
 		this.rank = rank;
 	}
+
+	public float getTime() {
+		return time;
+	}
+
+	public void setTime(float time) {
+		this.time = time;
+	}
+	
+	
 
 }

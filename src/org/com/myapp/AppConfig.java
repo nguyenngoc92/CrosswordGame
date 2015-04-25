@@ -9,17 +9,18 @@ import org.com.myapp.model.Word;
 
 public class AppConfig {
 
-	public static String host = "192.168.1.69";
+	public static String host = "192.168.0.72";
 	public static int port = 8080;
-	public static int sizeBoard = 15;
 
-	public static String loginUrl = "http://192.168.1.69:8080/login";
+	public static String registerUrl ="http://192.168.0.72:8080/register";
+	public static String loginUrl = "http://192.168.0.72:8080/login";
 	public static String userInforUrl = "http://192.168.1.69:8080/user/userinfor";
 
-	public static String getMatchUrl = "http://192.168.1.69:8080/user/match/getmatch";
-	public static String updateScoreUrl = "http://192.168.1.69:8080/user/updatescore";
-	public static String getUserInforListUrl = "http://192.168.1.69:8080/user/list/{id}/{limit}";
-	public static String updateItemInforAnswer = "http://192.168.1.69:8080/user/match/updateItemInfor";
+	public static String getMatchUrl = "http://192.168.0.72:8080/user/match/getmatch";
+	public static String updateScoreUrl = "http://192.168.0.72:8080/user/updatescore";
+	public static String getUserInforListUrl = "http://192.168.0.72:8080/user/list/{id}/{limit}";
+	public static String updateItemInforAnswer = "http://192.168.0.72:8080/user/match/updateItemInfor";
+	public static String getUserRankByMatch = "http://192.168.0.72:8080/user/match/{id}/getRankUser/{lenght}";
 
 	public static final int REQUEST_PREFERENCES = 2;
 	public static final float KEYBOARD_OVERLAY_OFFSET = 90;

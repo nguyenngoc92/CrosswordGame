@@ -19,6 +19,7 @@
     
     <string name ="finish">Finish</string>
     <string name ="solve">Solve</string>
+    <string name="rank_by_match">Rank</string>
     <string name="user_name">UserName</string>
     <string name="re_password">Repassword</string>
 	
