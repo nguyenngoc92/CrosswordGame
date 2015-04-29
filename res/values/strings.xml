@@ -16,11 +16,13 @@
     <string name ="create_account">Create new account</string>
     <string name="have_account">Have account ?</string>
     
-    
+    <string name ="play_continue">Continue</string>
     <string name ="finish">Finish</string>
     <string name ="solve">Solve</string>
-    <string name="rank_by_match">Rank</string>
+    <string name="myrank_by_match">My Rank</string>
+    <string name="rank_by_match">Top Rank</string>
     <string name="user_name">UserName</string>
     <string name="re_password">Repassword</string>
+    <string name="subject_title">Title</string>
 	
 </resources>

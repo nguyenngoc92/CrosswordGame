@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties
 public class MatchData implements Serializable  {
 
 	/**
@@ -12,7 +15,7 @@ public class MatchData implements Serializable  {
 	private static final long serialVersionUID = 1L;
 	private int id;
 	private String title;
-	private int level;
+	private int idSubject;
 	private int competition;
 	private List<ItemData> items;
 
@@ -21,11 +24,11 @@ public class MatchData implements Serializable  {
 
 	}
 
-	public MatchData(int id, String title, int level, int competition,
+	public MatchData(int id, String title,  int idSubject, int competition,
 			ArrayList<ItemData> items) {
 		this.id = id;
 		this.title = title;
-		this.level = level;
+		this.idSubject= idSubject;
 		this.competition = competition;
 		this.items = items;
 	}
@@ -46,12 +49,14 @@ public class MatchData implements Serializable  {
 		this.title = title;
 	}
 
-	public int getLevel() {
-		return level;
+	
+
+	public int getIdSubject() {
+		return idSubject;
 	}
 
-	public void setLevel(int level) {
-		this.level = level;
+	public void setIdSubject(int idSubject) {
+		this.idSubject = idSubject;
 	}
 
 	public int getCompetition() {

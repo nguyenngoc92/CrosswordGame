@@ -50,7 +50,7 @@ public class MatchRankListAdapter extends BaseAdapter {
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 		if (convertView == null) {
-			convertView = inflater.inflate(R.layout.list_item_rank, null);
+			convertView = inflater.inflate(R.layout.list_item_match_rank, null);
 		}
 
 		TextView tvName = (TextView) convertView.findViewById(R.id.tvName);

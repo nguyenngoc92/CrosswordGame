@@ -10,17 +10,23 @@ import org.com.myapp.model.Word;
 public class AppConfig {
 
 	public static String host = "192.168.0.72";
-	public static int port = 8080;
+	public static int port = 9000;
 
-	public static String registerUrl ="http://192.168.0.72:8080/register";
-	public static String loginUrl = "http://192.168.0.72:8080/login";
-	public static String userInforUrl = "http://192.168.1.69:8080/user/userinfor";
+	public static String registerUrl = "http://192.168.0.72:9000/register";
+	public static String loginUrl = "http://192.168.0.72:9000/login";
+	public static String userInforUrl = "http://192.168.1.69:9000/user/userinfor";
 
-	public static String getMatchUrl = "http://192.168.0.72:8080/user/match/getmatch";
-	public static String updateScoreUrl = "http://192.168.0.72:8080/user/updatescore";
-	public static String getUserInforListUrl = "http://192.168.0.72:8080/user/list/{id}/{limit}";
-	public static String updateItemInforAnswer = "http://192.168.0.72:8080/user/match/updateItemInfor";
-	public static String getUserRankByMatch = "http://192.168.0.72:8080/user/match/{id}/getRankUser/{lenght}";
+	public static String getMatchUrl = "http://192.168.0.72:9000/user/match/getmatch";
+	public static String updateScoreUrl = "http://192.168.0.72:9000/user/updatescore";
+	public static String getUserInforListUrl = "http://192.168.0.72:9000/user/list/{id}/{limit}";
+	public static String updateItemInforAnswer = "http://192.168.0.72:9000/user/match/updateItemInfor";
+
+	// //////////////////////////////////////////////////////////
+	public static String getAllSubjectUrl = "http://192.168.0.72:9000/user/subject";
+	public static String getMatchBySubjectUrl = "http://192.168.0.72:9000/user/subject/{idsubject}/match";
+
+	public static String getRankUserByMatchUrl = "http://192.168.0.72:9000/user/match/{id}/rank";
+	public static String getUserRankByMatch = "http://192.168.0.72:9000/user/match/{id}/rank/list/{lenght}";
 
 	public static final int REQUEST_PREFERENCES = 2;
 	public static final float KEYBOARD_OVERLAY_OFFSET = 90;
@@ -34,23 +40,22 @@ public class AppConfig {
 	public static ArrayList<ItemData> getItems() {
 		ArrayList<ItemData> items = new ArrayList<ItemData>();
 
-		items.add(new ItemData(1, "Thing that makes Daddy fell dumb",
-				"Start with letter 'H'", "HOMEWORK", false));
-		items.add(new ItemData(2, "Not gonna happen", "Start with letter 'N'",
-				"NAP", false));
-		items.add(new ItemData(3, "Worst word in the English language",
-				"Start with letter 'N'", "NO", false));
-		items.add(new ItemData(4, "Pure, frosty happiness",
-				"Start with letter 'P'", "POPSICLES", false));
-		items.add(new ItemData(5, "These are awful", "Start with letter 'P'",
-				"PANTS", false));
-		items.add(new ItemData(6, "Makes everything better",
-				"Start with letter 'B'", "BALLOON", false));
-		items.add(new ItemData(7, "Like razor blades, only worse",
-				"Start with letter 'S'", "SHIRTTAGS", false));
-		items.add(new ItemData(8,
-				"When dinner comes from, even when Mom calss it \"homemad\"'",
-				"Start with letter 'M'", "MICROWAVE", false));
+		/*
+		 * items.add(new ItemData(1, "Thing that makes Daddy fell dumb",
+		 * "Start with letter 'H'", "HOMEWORK", false)); items.add(new
+		 * ItemData(2, "Not gonna happen", "Start with letter 'N'", "NAP",
+		 * false)); items.add(new ItemData(3,
+		 * "Worst word in the English language", "Start with letter 'N'", "NO",
+		 * false)); items.add(new ItemData(4, "Pure, frosty happiness",
+		 * "Start with letter 'P'", "POPSICLES", false)); items.add(new
+		 * ItemData(5, "These are awful", "Start with letter 'P'", "PANTS",
+		 * false)); items.add(new ItemData(6, "Makes everything better",
+		 * "Start with letter 'B'", "BALLOON", false)); items.add(new
+		 * ItemData(7, "Like razor blades, only worse", "Start with letter 'S'",
+		 * "SHIRTTAGS", false)); items.add(new ItemData(8,
+		 * "When dinner comes from, even when Mom calss it \"homemad\"'",
+		 * "Start with letter 'M'", "MICROWAVE", false));
+		 */
 
 		return items;
 	}
@@ -60,9 +65,9 @@ public class AppConfig {
 
 		ArrayList<ItemData> items = getItems();
 		Collections.sort(items);
-		for (int i = 0; i< items.size(); i++) {
+		for (int i = 0; i < items.size(); i++) {
 
-			words.add(new Word(i+1, new Position(), items.get(i)));
+			words.add(new Word(i + 1, new Position(), items.get(i)));
 
 		}
 

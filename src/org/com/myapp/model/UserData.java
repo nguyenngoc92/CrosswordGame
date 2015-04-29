@@ -2,6 +2,9 @@ package org.com.myapp.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties
 public class UserData implements Serializable {
 
 	/**
@@ -44,7 +47,5 @@ public class UserData implements Serializable {
 	public void setTime(float time) {
 		this.time = time;
 	}
-	
-	
 
 }

@@ -34,8 +34,10 @@ public class HttpConnection {
 
 	public RestTemplate createRestTemplate(String username, String password,
 			String host, int port) {
-		return new RestTemplate(this.createSecureTransport(username, password,
-				host, port));
+		ClientHttpRequestFactory factory = this.createSecureTransport(username,
+				password, host, port);
+
+		return new RestTemplate(factory);
 	}
 
 	public Boolean checkNetWorkState(Context context) {
@@ -58,6 +60,7 @@ public class HttpConnection {
 				username, password);
 		client.getCredentialsProvider().setCredentials(
 				new AuthScope(host, port), credentials);
+
 		return new HttpComponentsClientHttpRequestFactory(client);
 	}
 

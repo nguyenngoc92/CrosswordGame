@@ -2,6 +2,9 @@ package org.com.myapp.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties
 public class ItemData implements Serializable, Comparable<ItemData> {
 
 	/**
@@ -12,7 +15,6 @@ public class ItemData implements Serializable, Comparable<ItemData> {
 	private Integer idmatch;
 	private Integer id;
 	private String question;
-	private String suggest;
 	private String answer;
 
 	private boolean check;
@@ -21,11 +23,10 @@ public class ItemData implements Serializable, Comparable<ItemData> {
 
 	}
 
-	public ItemData(Integer _id, String _question, String _suggest,
-			String _answer, boolean _check) {
+	public ItemData(Integer _id, String _question, String _answer,
+			boolean _check) {
 		this.id = _id;
 		this.question = _question;
-		this.suggest = _suggest;
 		this.answer = _answer;
 		this.check = _check;
 	}
@@ -33,7 +34,7 @@ public class ItemData implements Serializable, Comparable<ItemData> {
 	@Override
 	public int compareTo(ItemData item) {
 
-		return item.getAnswer().length()-answer.length();
+		return item.getAnswer().length() - answer.length();
 	}
 
 	public Integer getIdmatch() {
@@ -60,14 +61,6 @@ public class ItemData implements Serializable, Comparable<ItemData> {
 		this.question = question;
 	}
 
-	public String getSuggest() {
-		return suggest;
-	}
-
-	public void setSuggest(String suggest) {
-		this.suggest = suggest;
-	}
-
 	public String getAnswer() {
 		return answer;
 	}
@@ -83,6 +76,5 @@ public class ItemData implements Serializable, Comparable<ItemData> {
 	public void setCheck(boolean check) {
 		this.check = check;
 	}
-
 
 }

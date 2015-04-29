@@ -2,8 +2,8 @@ package org.com.myapp.adapter;
 
 import java.util.HashMap;
 
-import org.com.myapp.activity.GameActivity;
-import org.com.myapp.activity.GameActivity.GRID_MODE;
+import org.com.myapp.activity.PlayActivity;
+import org.com.myapp.activity.PlayActivity.GRID_MODE;
 import org.com.myapp.activity.R;
 import org.com.myapp.model.Cell;
 
@@ -110,9 +110,10 @@ public class GridAdapter extends BaseAdapter {
 			if (data != null) {
 				v.setBackgroundResource(R.drawable.area_empty);
 				v.setTag(this.AREA_WRITABLE);
-				
-				if(cell.getCellNode() != null && cell.getCellNode().isStartOfWord()){
-					
+
+				if (cell.getCellNode() != null
+						&& cell.getCellNode().isStartOfWord()) {
+
 				}
 			} else {
 				v.setBackgroundResource(R.drawable.area_block);
@@ -122,9 +123,9 @@ public class GridAdapter extends BaseAdapter {
 		}
 		this.views.put(position, v);
 
-		if (((GameActivity) context).currentMode == GRID_MODE.CHECK) {
+		if (((PlayActivity) context).currentMode == GRID_MODE.CHECK) {
 
-		} else if (((GameActivity) context).currentMode == GRID_MODE.SOLVE) {
+		} else if (((PlayActivity) context).currentMode == GRID_MODE.SOLVE) {
 
 		}
 
@@ -147,6 +148,14 @@ public class GridAdapter extends BaseAdapter {
 
 		if (this.answer[r][c] != null)
 			answer[r][c] = value;
+	}
+
+	public String[][] getAnswer() {
+		return answer;
+	}
+
+	public String[][] getCorrectAnswer() {
+		return correctAnswer;
 	}
 
 }

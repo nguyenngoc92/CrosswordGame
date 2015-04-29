@@ -1,22 +1,9 @@
 package org.com.myapp.activity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.com.myapp.AppConfig;
 import org.com.myapp.inet.HttpConnection;
-import org.com.myapp.model.MatchData;
-import org.com.myapp.model.UserData;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -47,7 +34,10 @@ public class MainActivity extends ActionBarActivity {
 			public void onClick(View view) {
 
 				if (httpConnection.checkNetWorkState(getApplicationContext())) {
-					sendRequestGetMatch();
+
+					Intent intent = new Intent(getApplicationContext(),
+							SubjectActivity.class);
+					startActivity(intent);
 				} else {
 					Toast toast = Toast.makeText(getApplicationContext(),
 							"Not connection internet !", Toast.LENGTH_SHORT);
@@ -73,138 +63,6 @@ public class MainActivity extends ActionBarActivity {
 		});
 	}
 
-	private void sendRequestGetMatch() {
-
-		class SendGetMatchGetReqAsyncTask extends
-				AsyncTask<Void, Void, MatchData> {
-
-			@Override
-			protected void onPreExecute() {
-				progressDialog = new ProgressDialog(MainActivity.this);
-				progressDialog.setMessage("Waiting data...");
-				progressDialog.show();
-			}
-
-			@Override
-			protected MatchData doInBackground(Void... arg0) {
-
-				try {
-
-					RestTemplate restTemplate = httpConnection
-							.getRestTemplate();
-					restTemplate.getMessageConverters().add(
-							new MappingJackson2HttpMessageConverter());
-
-					MatchData match = restTemplate.getForObject(
-							AppConfig.getMatchUrl, MatchData.class);
-
-					return match;
-				} catch (HttpClientErrorException e) {
-					e.printStackTrace();
-				}
-
-				return null;
-
-			}
-
-			@Override
-			protected void onPostExecute(MatchData result) {
-
-				super.onPostExecute(result);
-				progressDialog.dismiss();
-
-				if (result != null) {
-					Intent intent = new Intent(getApplicationContext(),
-							GameActivity.class);
-
-					if (result.getItems().size() != 0) {
-						intent.putExtra("match", result);
-						startActivity(intent);
-					} else {
-
-						Toast t = Toast.makeText(MainActivity.this, "No Data",
-								Toast.LENGTH_SHORT);
-						t.show();
-					}
-
-				}
-			}
-
-		}
-
-		SendGetMatchGetReqAsyncTask sendGetMatchGetReqAsyncTask = new SendGetMatchGetReqAsyncTask();
-		sendGetMatchGetReqAsyncTask.execute();
-
-	}
-
-	private void sendRequestGetListUserRank(int row, int limit) {
-
-		class SendRequestGetListUserRank extends
-				AsyncTask<Integer, Void, List<UserData>> {
-
-			@Override
-			protected void onPreExecute() {
-
-				progressDialog = new ProgressDialog(MainActivity.this);
-				progressDialog.setMessage("Waiting data...");
-				progressDialog.show();
-				super.onPreExecute();
-			}
-
-			@Override
-			protected List<UserData> doInBackground(Integer... params) {
-
-				int row = params[0];
-				int limit = params[1];
-
-				RestTemplate restTemplate = httpConnection.getRestTemplate();
-
-				try {
-
-					String url = AppConfig.getUserInforListUrl;
-					String data = row + "/" + limit;
-
-					ResponseEntity<UserData[]> result = restTemplate
-							.getForEntity(url + data, UserData[].class);
-
-					if (result.getStatusCode() == HttpStatus.OK) {
-
-						List<UserData> userDatas = new ArrayList<UserData>();
-
-						userDatas.addAll(Arrays.asList(result.getBody()));
-
-						return userDatas;
-
-					}
-				} catch (HttpClientErrorException e) {
-
-					e.printStackTrace();
-				}
-
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(List<UserData> result) {
-
-				if (result != null) {
-
-					Intent intent = new Intent(getApplicationContext(),
-							ListRankActivity.class);
-					// intent.putExtra(AppConfig.USER_DATA_LIST, RESULT_O)
-					startActivity(intent);
-
-				}
-				super.onPostExecute(result);
-				progressDialog.dismiss();
-
-			}
-
-		}
-
-		SendRequestGetListUserRank request = new SendRequestGetListUserRank();
-		request.execute(row, limit);
-	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

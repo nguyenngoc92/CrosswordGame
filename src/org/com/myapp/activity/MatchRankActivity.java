@@ -42,9 +42,9 @@ public class MatchRankActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_rank);
 		matchId = getIntent().getIntExtra("ID", 0);
+		System.out.println(matchId);
 
 		listView = (ListView) findViewById(R.id.listRank);
-		listView.setAdapter(adapter);
 
 		if (matchId != 0) {
 
@@ -119,8 +119,11 @@ public class MatchRankActivity extends ActionBarActivity {
 
 				if (result != null) {
 
+					System.out.println(result.size());
 					userDatas.addAll(result);
-					adapter.notifyDataSetChanged();
+					adapter = new MatchRankListAdapter(MatchRankActivity.this,
+							userDatas);
+					listView.setAdapter(adapter);
 				}
 				super.onPostExecute(result);
 				progressDialog.dismiss();

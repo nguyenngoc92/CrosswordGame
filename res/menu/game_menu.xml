@@ -15,9 +15,19 @@
         android:title="@string/solve"
         app:showAsAction="ifRoom"/>
     <item
+        android:id="@+id/action_play_continue"
+        android:orderInCategory="100"
+        android:title="@string/play_continue"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_myRank"
+        android:orderInCategory="100"
+        android:title="@string/myrank_by_match"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_getRankByMatch"
         android:orderInCategory="100"
-        android:title="@string/solve"
+        android:title="@string/rank_by_match"
         app:showAsAction="ifRoom"/>
 
 </menu>
