@@ -70,7 +70,8 @@ public class SubjectActivity extends ActionBarActivity {
 				if (subject != null) {
 					Intent intent = new Intent(SubjectActivity.this,
 							PlayActivity.class);
-					intent.putExtra("Subject", subject);
+					intent.putExtra(AppConfig.FLAG, AppConfig.FLAG_SUBJECT);
+					intent.putExtra("ID", subject.getIdSubject());
 					startActivity(intent);
 				}
 

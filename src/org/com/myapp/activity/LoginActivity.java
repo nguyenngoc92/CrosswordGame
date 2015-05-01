@@ -42,21 +42,22 @@ public class LoginActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_login);
+		setContentView(R.layout.activity_sign_in_screen);
 
 		this.init();
 	}
 
 	private void init() {
-		edtEmail = (EditText) findViewById(R.id.edtEmail);
-		edtPassword = (EditText) findViewById(R.id.edtPassword);
+		edtEmail = (EditText) findViewById(R.id.etUserName);
+		edtPassword = (EditText) findViewById(R.id.etPass);
 
-		btnLogin = (Button) findViewById(R.id.btnLogin);
+		btnLogin = (Button) findViewById(R.id.btnSingIn);
 		tvForgotPassword = (TextView) findViewById(R.id.tvForgotPassword);
 		tvErrorLogin = (TextView) findViewById(R.id.tvErrorLogin);
 
 		btnLogin.setOnClickListener(new View.OnClickListener() {
 
+			
 			@Override
 			public void onClick(View v) {
 

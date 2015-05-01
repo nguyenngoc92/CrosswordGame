@@ -26,7 +26,12 @@ public class AppConfig {
 	public static String getMatchBySubjectUrl = "http://192.168.0.72:9000/user/subject/{idsubject}/match";
 
 	public static String getRankUserByMatchUrl = "http://192.168.0.72:9000/user/match/{id}/rank";
-	public static String getUserRankByMatch = "http://192.168.0.72:9000/user/match/{id}/rank/list/{lenght}";
+	public static String getTopRankUserByMatchUrl = "http://192.168.0.72:9000/user/match/{id}/rank/list/{lenght}";
+	public static String getRankUserByCompetitionUrl = "http://192.168.0.72:9000/user/competition/{id}/rank";
+	public static String getTopRankUserByCompetitionUrl = "http://192.168.0.72:9000/user/competition/{id}/rank/list/{lenght}";
+
+	public static String getCurrentCompetitionUrl = "http://192.168.0.72:9000/user/competition/current";
+	public static String getMatchByCompetitionUrl = "http://192.168.0.72:9000/user/competition/{idcompetition}/match";
 
 	public static final int REQUEST_PREFERENCES = 2;
 	public static final float KEYBOARD_OVERLAY_OFFSET = 90;
@@ -34,28 +39,28 @@ public class AppConfig {
 	public static String USER_NAME = "USERNAME";
 	public static String SCORE = "SCORE";
 	public static String RANK = "RANK";
+	public static String FLAG_SUBJECT = "SUBJECT";
+	public static String FLAG_COMPETITION = "COMPETITION";
+	public static String FLAG = "FLAG";
 
 	public static final String USER_DATA_LIST = "USER_DATA_LIST";
 
 	public static ArrayList<ItemData> getItems() {
 		ArrayList<ItemData> items = new ArrayList<ItemData>();
 
-		/*
-		 * items.add(new ItemData(1, "Thing that makes Daddy fell dumb",
-		 * "Start with letter 'H'", "HOMEWORK", false)); items.add(new
-		 * ItemData(2, "Not gonna happen", "Start with letter 'N'", "NAP",
-		 * false)); items.add(new ItemData(3,
-		 * "Worst word in the English language", "Start with letter 'N'", "NO",
-		 * false)); items.add(new ItemData(4, "Pure, frosty happiness",
-		 * "Start with letter 'P'", "POPSICLES", false)); items.add(new
-		 * ItemData(5, "These are awful", "Start with letter 'P'", "PANTS",
-		 * false)); items.add(new ItemData(6, "Makes everything better",
-		 * "Start with letter 'B'", "BALLOON", false)); items.add(new
-		 * ItemData(7, "Like razor blades, only worse", "Start with letter 'S'",
-		 * "SHIRTTAGS", false)); items.add(new ItemData(8,
-		 * "When dinner comes from, even when Mom calss it \"homemad\"'",
-		 * "Start with letter 'M'", "MICROWAVE", false));
-		 */
+		items.add(new ItemData(1, "Thing that makes Daddy fell dumb",
+				"HOMEWORK", false));
+		items.add(new ItemData(2, "Not gonna happen", "NAP", false));
+		items.add(new ItemData(3, "Worst word in the English language", "NO",
+				false));
+		items.add(new ItemData(4, "Pure, frosty happiness", "POPSICLES", false));
+		items.add(new ItemData(5, "These are awful", "PANTS", false));
+		items.add(new ItemData(6, "Makes everything better", "BALLOON", false));
+		items.add(new ItemData(7, "Like razor blades, only worse", "SHIRTTAGS",
+				false));
+		items.add(new ItemData(8,
+				"When dinner comes from, even when Mom calss it \"homemad\"'",
+				"MICROWAVE", false));
 
 		return items;
 	}

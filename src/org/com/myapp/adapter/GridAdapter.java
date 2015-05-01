@@ -35,29 +35,32 @@ public class GridAdapter extends BaseAdapter {
 	private String[][] correctAnswer;
 
 	private Cell[][] grid;
+	private int rows;
+	private int cols;
 
 	@SuppressWarnings("deprecation")
 	public GridAdapter(Activity act, Cell[][] grid) {
 
 		this.context = (Context) act;
 		this.grid = grid;
-
+		rows = grid.length;
+		cols = grid[0].length;
 		this.initialData(grid);
 
 		// Calcul area height
 		Display display = act.getWindowManager().getDefaultDisplay();
-		this.displayHeight = display.getWidth() / this.size;
+		this.displayHeight = display.getWidth() / this.rows;
 
 	}
 
 	private void initialData(Cell[][] grid) {
 		this.size = grid.length;
 
-		correctAnswer = new String[size][size];
-		answer = new String[size][size];
+		correctAnswer = new String[rows][cols];
+		answer = new String[rows][cols];
 
-		for (int r = 0; r < size; r++) {
-			for (int c = 0; c < size; c++) {
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
 				correctAnswer[r][c] = grid[r][c].getLetter();
 
 				if (grid[r][c].getLetter() != null)
@@ -71,7 +74,7 @@ public class GridAdapter extends BaseAdapter {
 	@Override
 	public int getCount() {
 
-		return this.size * this.size;
+		return this.rows * this.cols;
 	}
 
 	@Override
@@ -91,8 +94,8 @@ public class GridAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 
 		TextView v = this.views.get(position);
-		int r = (int) (position / this.size);
-		int c = (int) (position % this.size);
+		int r = (int) (position / this.cols);
+		int c = (int) (position % this.cols);
 
 		String data = answer[r][c];
 		String correcData = correctAnswer[r][c];
@@ -108,15 +111,16 @@ public class GridAdapter extends BaseAdapter {
 			v.setGravity(Gravity.CENTER);
 
 			if (data != null) {
-				v.setBackgroundResource(R.drawable.area_empty);
+				// v.setBackgroundResource(R.drawable.area_empty);
+				v.setBackgroundResource(R.color.cell_empty);
 				v.setTag(this.AREA_WRITABLE);
 
 				if (cell.getCellNode() != null
 						&& cell.getCellNode().isStartOfWord()) {
-
 				}
 			} else {
-				v.setBackgroundResource(R.drawable.area_block);
+				// v.setBackgroundResource(R.drawable.area_block);
+				v.setBackgroundResource(R.color.cell);
 				v.setTag(this.AREA_BLOCK);
 			}
 
@@ -134,8 +138,8 @@ public class GridAdapter extends BaseAdapter {
 
 	public boolean isBlock(int position) {
 
-		int r = position / this.size;
-		int c = position % this.size;
+		int r = position / this.rows;
+		int c = position % this.cols;
 
 		return (this.answer[r][c] == null);
 
@@ -143,8 +147,8 @@ public class GridAdapter extends BaseAdapter {
 
 	public void setValue(int position, String value) {
 
-		int r = position / this.size;
-		int c = position % this.size;
+		int r = position / this.cols;
+		int c = position % this.cols;
 
 		if (this.answer[r][c] != null)
 			answer[r][c] = value;

@@ -290,11 +290,11 @@ public class CrossWordFactory {
 		int rows = r_max - r_min + 1;
 		int cols = c_max - c_min + 1;
 		int sizeGrid = Math.max(rows, cols);
-		Cell[][] newGrid = new Cell[sizeGrid][sizeGrid];
+		Cell[][] newGrid = new Cell[rows][cols];
 
 		// copy the grid onto the smaller grid
-		for (int r = r_min, r2 = 0; r2 < sizeGrid; r++, r2++) {
-			for (int c = c_min, c2 = 0; c2 < sizeGrid; c++, c2++) {
+		for (int r = r_min, r2 = 0; r2 < rows; r++, r2++) {
+			for (int c = c_min, c2 = 0; c2 < cols; c++, c2++) {
 				newGrid[r2][c2] = grid[r][c];
 			}
 		}

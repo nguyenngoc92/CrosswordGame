@@ -19,7 +19,6 @@ import org.com.myapp.model.MatchData;
 import org.com.myapp.model.MatchItemForm;
 import org.com.myapp.model.Position;
 import org.com.myapp.model.ScoreForm;
-import org.com.myapp.model.SubjectData;
 import org.com.myapp.model.UserData;
 import org.com.myapp.model.Word;
 import org.springframework.http.HttpStatus;
@@ -44,9 +43,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,7 +72,8 @@ public class PlayActivity extends ActionBarActivity implements
 
 	private Cell[][] gridCell;
 
-	private int gridSize;
+	private int rows;
+	private int cols;
 
 	private ArrayList<Word> wordList = new ArrayList<Word>();
 
@@ -94,7 +94,8 @@ public class PlayActivity extends ActionBarActivity implements
 
 	private MatchData m;
 
-	private SubjectData subject;
+	private int id = 0;
+	private String flag;
 	private HttpConnection httpConnection = HttpConnection.getInstance();
 
 	@Override
@@ -103,8 +104,10 @@ public class PlayActivity extends ActionBarActivity implements
 
 		setContentView(R.layout.activity_play);
 
-		this.subject = (SubjectData) getIntent()
-				.getSerializableExtra("Subject");
+		// flag = getIntent().getStringExtra(AppConfig.FLAG);
+
+		// id = getIntent().getIntExtra("ID", 0);
+		System.out.println(flag + " " + id);
 
 		this.init();
 	}
@@ -116,7 +119,12 @@ public class PlayActivity extends ActionBarActivity implements
 		this.keyboardView = (KeyboardView) findViewById(R.id.keyboard);
 
 		if (httpConnection.checkNetWorkState(PlayActivity.this)) {
-			this.resetGrid(subject.getIdSubject());
+
+			// this.sendRequestGetMatch(id, flag);
+			resetGrid();
+			words.addAll(AppConfig.getWords());
+			createGrid(words);
+
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(),
 					"Not connection internet !", Toast.LENGTH_SHORT);
@@ -126,7 +134,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 	}
 
-	public void resetGrid(int idSubject) {
+	private void resetGrid() {
 
 		this.words = new ArrayList<Word>();
 		this.wordList = new ArrayList<Word>();
@@ -139,9 +147,9 @@ public class PlayActivity extends ActionBarActivity implements
 		this.currentDir = -1;
 		this.tvDescription.setText(null);
 		this.initialTime = 0;
-
-		sendRequestGetMatch(idSubject);
-
+		// this.gridSize = 0;
+		this.rows = 0;
+		this.cols = 0;
 	}
 
 	private void createGrid(ArrayList<Word> words) {
@@ -151,7 +159,9 @@ public class PlayActivity extends ActionBarActivity implements
 		gridCell = factory.pickBestGrid();
 
 		if (gridCell != null) {
-			this.gridSize = gridCell.length;
+			// this.gridSize = gridCell.length;
+			rows = gridCell.length;
+			cols = gridCell[0].length;
 			wordList.addAll(factory.getWords());
 
 			Display display = getWindowManager().getDefaultDisplay();
@@ -165,7 +175,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 			this.gridAdapter = new GridAdapter(this, gridCell);
 			this.grid.setAdapter(gridAdapter);
-			this.grid.setNumColumns(gridSize);
+			this.grid.setNumColumns(cols);
 			this.grid.setLayoutParams(gridParams);
 			this.grid.setVerticalScrollBarEnabled(false);
 			this.grid.setOnTouchListener(this);
@@ -211,7 +221,12 @@ public class PlayActivity extends ActionBarActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
-		getMenuInflater().inflate(R.menu.game_menu, menu);
+		if (flag == AppConfig.FLAG_SUBJECT) {
+			getMenuInflater().inflate(R.menu.game_menu, menu);
+		} else {
+			getMenuInflater().inflate(R.menu.competition_menu, menu);
+		}
+
 		return true;
 	}
 
@@ -301,24 +316,59 @@ public class PlayActivity extends ActionBarActivity implements
 
 		}
 
-		if (id == R.id.action_myRank) {
-
-			Intent intent = new Intent(PlayActivity.this, MyRankActivity.class);
-			intent.putExtra("MATCHID", m.getId());
-			startActivity(intent);
-		}
-
 		if (id == R.id.action_getRankByMatch) {
 
 			Intent intent = new Intent(getApplicationContext(),
-					MatchRankActivity.class);
+					ListRankActivity.class);
 			intent.putExtra("ID", m.getId());
+			intent.putExtra(AppConfig.FLAG, AppConfig.FLAG_SUBJECT);
 			startActivity(intent);
 
 		}
 
 		if (id == R.id.action_play_continue) {
-			this.resetGrid(subject.getIdSubject());
+			sendRequestGetMatch(id, flag);
+
+		}
+
+		if (id == R.id.action_myRankCompetition) {
+
+			if (httpConnection.checkNetWorkState(PlayActivity.this)) {
+
+				Intent intent = new Intent(PlayActivity.this,
+						MyRankActivity.class);
+				intent.putExtra("ID", id);
+				intent.putExtra(AppConfig.FLAG, AppConfig.FLAG_COMPETITION);
+				startActivity(intent);
+
+			} else {
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"Not connection internet !", Toast.LENGTH_SHORT);
+				toast.show();
+				this.finish();
+			}
+
+			return true;
+		}
+
+		if (id == R.id.action_getRankByCompetition) {
+			if (httpConnection.checkNetWorkState(PlayActivity.this)) {
+
+				Intent intent = new Intent(PlayActivity.this,
+						ListRankActivity.class);
+				intent.putExtra("ID", id);
+				intent.putExtra(AppConfig.FLAG, AppConfig.FLAG_COMPETITION);
+				startActivity(intent);
+
+			} else {
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"Not connection internet !", Toast.LENGTH_SHORT);
+				toast.show();
+				this.finish();
+			}
+
+			return true;
+
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -367,7 +417,7 @@ public class PlayActivity extends ActionBarActivity implements
 				for (int i = 0; i <= cMax - c; i++) {
 					if ((w.getAnswer().charAt(i) + "") != answer[r][c + i]) {
 
-						int p = r * gridSize + c + i;
+						int p = r * rows + c + i;
 						list.add(p);
 					}
 				}
@@ -377,7 +427,7 @@ public class PlayActivity extends ActionBarActivity implements
 				for (int i = 0; i <= rMax - r; i++) {
 					if ((w.getAnswer().charAt(i) + "") != answer[r + i][c]) {
 
-						int p = (r + i) * gridSize + c;
+						int p = (r + i) * cols + c;
 						list.add(p);
 					}
 				}
@@ -460,7 +510,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 		if (currentDir == 0) {
 
-			if (position / this.gridSize == previousPosition / this.gridSize) {
+			if (position / this.rows == previousPosition / this.rows) {
 				view.setBackgroundResource(R.drawable.area_selected);
 			} else {
 				view.setBackgroundResource(R.drawable.area_empty);
@@ -468,7 +518,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 		} else if (currentDir == 1) {
 
-			if (position % this.gridSize == previousPosition % this.gridSize) {
+			if (position % this.cols == previousPosition % this.cols) {
 				view.setBackgroundResource(R.drawable.area_selected);
 			} else {
 				view.setBackgroundResource(R.drawable.area_empty);
@@ -488,7 +538,7 @@ public class PlayActivity extends ActionBarActivity implements
 				for (int i = 0; i < currentWord.getItem().getAnswer().length(); i++) {
 
 					Position p = currentWord.getPosition();
-					int begin = p.getC() + this.gridSize * p.getR();
+					int begin = p.getC() + this.cols * p.getR();
 					View v = grid.getChildAt(begin + i);
 					v.setBackgroundResource(R.drawable.area_selected);
 					currentArea.add(v);
@@ -499,8 +549,8 @@ public class PlayActivity extends ActionBarActivity implements
 				for (int i = 0; i < currentWord.getItem().getAnswer().length(); i++) {
 
 					Position p = currentWord.getPosition();
-					int begin = p.getC() + this.gridSize * p.getR();
-					View v = grid.getChildAt(begin + i * this.gridSize);
+					int begin = p.getC() + this.cols * p.getR();
+					View v = grid.getChildAt(begin + i * this.cols);
 					v.setBackgroundResource(R.drawable.area_selected);
 					currentArea.add(v);
 				}
@@ -523,7 +573,7 @@ public class PlayActivity extends ActionBarActivity implements
 				int dir = p.getDir() == Direction.ACROSS ? 0 : 1;
 				if (dir == 0) {
 
-					int beginPosition = p.getC() + p.getR() * this.gridSize;
+					int beginPosition = p.getC() + p.getR() * this.cols;
 					int endPosition = beginPosition + lenght - 1;
 
 					if (position >= beginPosition && position <= endPosition) {
@@ -542,14 +592,14 @@ public class PlayActivity extends ActionBarActivity implements
 				int lenght = w.getItem().getAnswer().length();
 				int dir = p.getDir() == Direction.ACROSS ? 0 : 1;
 				if (dir == 1) {
-					int beginPosition = p.getC() + p.getR() * this.gridSize;
-					int endPosition = beginPosition + this.gridSize
+					int beginPosition = p.getC() + p.getR() * this.cols;
+					int endPosition = beginPosition + this.cols
 							* (p.getR() + lenght - 1);
 
 					if (position >= beginPosition && position <= endPosition) {
 
-						int mod1 = beginPosition % this.gridSize;
-						int mod2 = position % this.gridSize;
+						int mod1 = beginPosition % this.cols;
+						int mod2 = position % this.cols;
 
 						if (mod1 == mod2)
 							return w;
@@ -579,8 +629,8 @@ public class PlayActivity extends ActionBarActivity implements
 	}
 
 	private boolean checkHashUnderOrUpChild(int position) {
-		View upChild = this.grid.getChildAt(position - this.gridSize);
-		View underChild = this.grid.getChildAt(position + this.gridSize);
+		View upChild = this.grid.getChildAt(position - this.cols);
+		View underChild = this.grid.getChildAt(position + this.cols);
 		if (upChild != null || underChild != null) {
 			if (upChild != null) {
 				if (upChild.getTag().equals(GridAdapter.AREA_WRITABLE)) {
@@ -670,7 +720,7 @@ public class PlayActivity extends ActionBarActivity implements
 			// move cursor to the next point
 			int tmp = this.moveItemSelected(value);
 
-			if (tmp >= 1 && tmp <= this.gridSize * this.gridSize
+			if (tmp >= 1 && tmp <= this.rows * this.cols
 					&& !gridAdapter.isBlock(tmp)) {
 
 				view.setBackgroundResource(R.drawable.area_selected);
@@ -694,12 +744,12 @@ public class PlayActivity extends ActionBarActivity implements
 
 				if (value.equals(" ")) {
 
-					tmp = this.currentDir == 0 ? previousPosition
-							- this.gridSize : previousPosition - 1;
+					tmp = this.currentDir == 0 ? previousPosition - this.cols
+							: previousPosition - 1;
 				} else {
 
 					tmp = this.currentDir == 0 ? previousPosition + 1
-							: previousPosition + this.gridSize;
+							: previousPosition + this.cols;
 				}
 
 			}
@@ -811,9 +861,10 @@ public class PlayActivity extends ActionBarActivity implements
 
 	}
 
-	private void sendRequestGetMatch(int idSubject) {
+	private void sendRequestGetMatch(int id, final String flag) {
 
-		class SendRequestGetMatch extends AsyncTask<Integer, Void, MatchData> {
+		class SendRequestGetMatchNext extends
+				AsyncTask<Integer, Void, ResponseEntity<MatchData>> {
 
 			ProgressDialog progressDialog;
 
@@ -824,54 +875,90 @@ public class PlayActivity extends ActionBarActivity implements
 				progressDialog = new ProgressDialog(PlayActivity.this);
 				progressDialog.setMessage("Loading data...");
 				progressDialog.show();
+
 			}
 
 			@Override
-			protected MatchData doInBackground(Integer... params) {
+			protected ResponseEntity<MatchData> doInBackground(
+					Integer... params) {
 
-				int idsubject = params[0];
+				int id = params[0];
 				RestTemplate restTemplate = httpConnection.getRestTemplate();
 				try {
 
 					restTemplate.getMessageConverters().add(
 							new MappingJackson2HttpMessageConverter());
 					Map<String, String> paramsMap = new HashMap<String, String>();
-					paramsMap.put("idsubject", idsubject + "");
+					String url;
+					if (flag.equalsIgnoreCase(AppConfig.FLAG_SUBJECT)) {
+						paramsMap.put("idsubject", id + "");
+						url = AppConfig.getMatchBySubjectUrl;
+					} else {
+						url = AppConfig.getMatchByCompetitionUrl;
+						paramsMap.put("idcompetition", id + "");
+					}
 
-					MatchData matchData = restTemplate.getForObject(
-							AppConfig.getMatchBySubjectUrl, MatchData.class,
-							paramsMap);
-					return matchData;
+					System.out.println(url);
+					ResponseEntity<MatchData> entity = restTemplate
+							.getForEntity(url, MatchData.class, paramsMap);
+
+					return entity;
 				} catch (HttpClientErrorException e) {
-
+					e.printStackTrace();
 				}
 
 				return null;
 			}
 
 			@Override
-			protected void onPostExecute(MatchData match) {
+			protected void onPostExecute(ResponseEntity<MatchData> entity) {
 				// TODO Auto-generated method stub
-				super.onPostExecute(match);
+				super.onPostExecute(entity);
 
-				if (match != null && match.getItems() != null
-						&& match.getItems().size() != 0) {
+				if (entity.getStatusCode() == HttpStatus.OK) {
 
-					System.out.println(match.getId() + " Size "
-							+ match.getItems().size());
-					m = match;
-					words.addAll(createWordList(m));
-					createGrid(words);
+					MatchData match = entity.getBody();
+					System.out.println(match.getId());
+					if (match != null && match.getItems() != null
+							&& match.getItems().size() != 0) {
 
+						resetGrid();
+						System.out.println(match.getId() + " Size "
+								+ match.getItems().size());
+						m = match;
+						words.addAll(createWordList(m));
+						createGrid(words);
+
+						progressDialog.dismiss();
+					} else {
+
+						progressDialog.dismiss();
+						final Dialog dialog = new Dialog(PlayActivity.this);
+						dialog.setContentView(R.layout.dialog_finish);
+						dialog.setTitle("Congratulation you !");
+
+						Button btn = (Button) dialog
+								.findViewById(R.id.btnDialogFinish);
+						btn.setOnClickListener(new View.OnClickListener() {
+
+							@Override
+							public void onClick(View view) {
+								// TODO Auto-generated method stub
+								dialog.dismiss();
+							}
+						});
+
+						dialog.show();
+
+					}
 				}
 
-				progressDialog.dismiss();
 			}
 
 		}
 
-		SendRequestGetMatch requestGetMatch = new SendRequestGetMatch();
-		requestGetMatch.execute(idSubject);
+		SendRequestGetMatchNext requestGetMatch = new SendRequestGetMatchNext();
+		requestGetMatch.execute(id);
 
 	}
 
@@ -980,20 +1067,26 @@ public class PlayActivity extends ActionBarActivity implements
 					tvTitle.setText(result.getUsername());
 					tvScore.setText(result.getScore() + "");
 					tvTime.setText(result.getTime() + "");
-					tvRank.setText(result.getRank() + "");
+					if (flag == AppConfig.FLAG_SUBJECT) {
+						tvRank.setText(result.getRank() + "");
+					} else {
+						tvRank.setText("");
+					}
+
 					dialog.setCancelable(true);
 
 					btnDialog.setOnClickListener(new View.OnClickListener() {
 
 						@Override
 						public void onClick(View v) {
+
 							dialog.dismiss();
 
 						}
 					});
 					dialog.show();
 				} else {
-					System.out.println("RESULT: NULL");
+
 				}
 
 			}

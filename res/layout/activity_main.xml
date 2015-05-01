@@ -1,34 +1,39 @@
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="#E3F2FD" >
 
     <Button
         android:id="@+id/btnPlay"
-        android:layout_width="wrap_content"
+        style="@style/DefaultButtonText"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="62dp"
+        android:background="@drawable/button_default_bg"
         android:text="@string/Start" />
 
     <Button
         android:id="@+id/btnRank"
-        android:layout_width="wrap_content"
+        style="@style/DefaultButtonText"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/btnPlay"
+        android:layout_alignParentLeft="true"
         android:layout_below="@+id/btnPlay"
         android:layout_marginTop="75dp"
+        android:background="@drawable/button_default_bg"
         android:text="@string/Rank" />
 
     <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnCompetition"
+        style="@style/DefaultButtonText"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/btnRank"
+        android:layout_alignParentLeft="true"
         android:layout_below="@+id/btnRank"
         android:layout_marginTop="87dp"
-        android:text="Button" />
-    
-</RelativeLayout>
+        android:background="@drawable/button_default_bg"
+        android:text="Competition" />
 
+</RelativeLayout>

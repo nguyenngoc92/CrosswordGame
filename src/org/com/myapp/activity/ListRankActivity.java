@@ -36,24 +36,32 @@ public class ListRankActivity extends ActionBarActivity {
 
 	private final HttpConnection httpConnection = HttpConnection.getInstance();
 
+	private String flag;
+	private int id;
+	private int lenght = 10;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_rank);
 
+		flag = getIntent().getStringExtra(AppConfig.FLAG);
+		id = getIntent().getIntExtra("ID", 0);
+
 		listView = (ListView) findViewById(R.id.listRank);
 
-		adapter = new RankListAdapter(this, userDatas);
+		adapter = new RankListAdapter(this, userDatas, flag);
 		listView.setAdapter(adapter);
 
 		// changing action bar color
 		getActionBar().setBackgroundDrawable(
 				new ColorDrawable(Color.parseColor("#1b1b1b")));
-		
-		
 
 		if (httpConnection.checkNetWorkState(getApplicationContext())) {
-			sendRequestGetListUserRank(0, 10);
+			if (id != 0) {
+				sendRequestGetListUserRank(0, lenght);
+			}
+
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(),
 					"Not connection internet !", Toast.LENGTH_SHORT);
@@ -71,14 +79,13 @@ public class ListRankActivity extends ActionBarActivity {
 
 	}
 
-	private void sendRequestGetListUserRank(int row, int limit) {
+	private void sendRequestGetListUserRank(int id, int lenght) {
 
 		class SendRequestGetListUserRank extends
 				AsyncTask<Integer, Void, List<UserData>> {
 
 			@Override
 			protected void onPreExecute() {
-
 				progressDialog = new ProgressDialog(ListRankActivity.this);
 				progressDialog.setMessage("Loading data ...");
 				progressDialog.show();
@@ -88,20 +95,20 @@ public class ListRankActivity extends ActionBarActivity {
 			@Override
 			protected List<UserData> doInBackground(Integer... params) {
 
-				int row = params[0];
-				int limit = params[1];
+				int id = params[0];
+				int lenght = params[1];
 
 				RestTemplate restTemplate = httpConnection.getRestTemplate();
 
 				try {
 
-					String url = AppConfig.getUserInforListUrl;
+					String url = AppConfig.getTopRankUserByMatchUrl;
 
 					restTemplate.getMessageConverters().add(
 							new MappingJackson2HttpMessageConverter());
 					Map<String, String> paramsMap = new HashMap<String, String>();
-					paramsMap.put("id", row + "");
-					paramsMap.put("limit", limit + "");
+					paramsMap.put("id", id + "");
+					paramsMap.put("lenght", lenght + "");
 
 					ResponseEntity<UserData[]> userEntity = restTemplate
 							.getForEntity(url, UserData[].class, paramsMap);
@@ -118,7 +125,6 @@ public class ListRankActivity extends ActionBarActivity {
 
 					e.printStackTrace();
 				}
-
 				return null;
 			}
 
@@ -127,18 +133,20 @@ public class ListRankActivity extends ActionBarActivity {
 
 				if (result != null) {
 
+					System.out.println(result.size());
 					userDatas.addAll(result);
-					adapter.notifyDataSetChanged();
+					adapter = new RankListAdapter(ListRankActivity.this,
+							userDatas, flag);
+					listView.setAdapter(adapter);
 				}
 				super.onPostExecute(result);
 				progressDialog.dismiss();
-
 			}
 
 		}
 
 		SendRequestGetListUserRank request = new SendRequestGetListUserRank();
-		request.execute(row, limit);
-	}
+		request.execute(id, lenght);
 
+	}
 }

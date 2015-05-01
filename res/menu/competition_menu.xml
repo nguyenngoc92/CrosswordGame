@@ -20,7 +20,12 @@
         android:title="@string/play_continue"
         app:showAsAction="ifRoom"/>
     <item
-        android:id="@+id/action_getRankByMatch"
+        android:id="@+id/action_myRankCompetition"
+        android:orderInCategory="100"
+        android:title="@string/myrank_by_match"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_getRankByCompetition"
         android:orderInCategory="100"
         android:title="@string/rank_by_match"
         app:showAsAction="ifRoom"/>

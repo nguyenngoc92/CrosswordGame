@@ -13,16 +13,31 @@
     <string name="password">Password</string>
     <string name="Start">start</string>
     <string name="Rank">rank</string>
-    <string name ="create_account">Create new account</string>
+    <string name="create_account">Create new account</string>
     <string name="have_account">Have account ?</string>
-    
-    <string name ="play_continue">Continue</string>
-    <string name ="finish">Finish</string>
-    <string name ="solve">Solve</string>
+    <string name="play_continue">Continue</string>
+    <string name="finish">Finish</string>
+    <string name="solve">Solve</string>
     <string name="myrank_by_match">My Rank</string>
     <string name="rank_by_match">Top Rank</string>
     <string name="user_name">UserName</string>
     <string name="re_password">Repassword</string>
+    <string name="signup">Sign Up</string>
+    <string name="signin">Sign In</string>
     <string name="subject_title">Title</string>
-	
+
+    <style name="DefaultButtonText">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#979797</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_margin">3dp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:shadowColor">#f9f9f9</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
+    </style>
+
 </resources>

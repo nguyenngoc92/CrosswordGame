@@ -88,7 +88,7 @@ public class MatchRankActivity extends ActionBarActivity {
 
 				try {
 
-					String url = AppConfig.getUserRankByMatch;
+					String url = AppConfig.getTopRankUserByMatchUrl;
 
 					restTemplate.getMessageConverters().add(
 							new MappingJackson2HttpMessageConverter());

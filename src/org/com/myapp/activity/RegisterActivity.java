@@ -32,24 +32,24 @@ public class RegisterActivity extends ActionBarActivity {
 	private EditText edtEmail;
 	private EditText edtPassword;
 	private EditText edtRePassword;
-	private Button btnRegister;
+	private Button btnSignUp;
 	private TextView tvRegisterError;
 	private TextView tvLogin;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_register);
+		setContentView(R.layout.activity_signup);
 
 		this.initial();
 	}
 
 	private void initial() {
 
-		this.edtUsername = (EditText) findViewById(R.id.edtRegisterUserName);
-		this.edtEmail = (EditText) findViewById(R.id.edtRegisterEmail);
-		this.edtPassword = (EditText) findViewById(R.id.edtRegisterPassword);
-		this.edtRePassword = (EditText) findViewById(R.id.edtRegisterRe_password);
+		this.edtUsername = (EditText) findViewById(R.id.etUserName);
+		this.edtEmail = (EditText) findViewById(R.id.etEmail);
+		this.edtPassword = (EditText) findViewById(R.id.etPass);
+		this.edtRePassword = (EditText) findViewById(R.id.etRe_Pass);
 		this.tvLogin = (TextView) findViewById(R.id.tvLogin);
 		this.tvRegisterError = (TextView) findViewById(R.id.tvRegisterError);
 
@@ -64,8 +64,8 @@ public class RegisterActivity extends ActionBarActivity {
 
 			}
 		});
-		this.btnRegister = (Button) findViewById(R.id.btnRegister);
-		btnRegister.setOnClickListener(new View.OnClickListener() {
+		this.btnSignUp = (Button) findViewById(R.id.btnSingUp);
+		btnSignUp.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
