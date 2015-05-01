@@ -54,7 +54,7 @@ public class RankListAdapter extends BaseAdapter {
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
-		if (flag == AppConfig.FLAG_COMPETITION) {
+		if (flag.equalsIgnoreCase(AppConfig.FLAG_COMPETITION)) {
 			if (convertView == null) {
 				convertView = inflater.inflate(R.layout.list_item_rank, null);
 			}
@@ -75,7 +75,7 @@ public class RankListAdapter extends BaseAdapter {
 			return convertView;
 		}
 
-		if (flag == AppConfig.FLAG_SUBJECT) {
+		if (flag.equalsIgnoreCase(AppConfig.FLAG_SUBJECT)) {
 			if (convertView == null) {
 				convertView = inflater.inflate(R.layout.list_item_match_rank,
 						null);

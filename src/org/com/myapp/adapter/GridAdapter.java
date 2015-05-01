@@ -29,7 +29,6 @@ public class GridAdapter extends BaseAdapter {
 	private HashMap<Integer, TextView> views = new HashMap<Integer, TextView>();
 
 	private int displayHeight;
-	private int size;
 
 	private String[][] answer;
 	private String[][] correctAnswer;
@@ -54,7 +53,6 @@ public class GridAdapter extends BaseAdapter {
 	}
 
 	private void initialData(Cell[][] grid) {
-		this.size = grid.length;
 
 		correctAnswer = new String[rows][cols];
 		answer = new String[rows][cols];
@@ -138,7 +136,7 @@ public class GridAdapter extends BaseAdapter {
 
 	public boolean isBlock(int position) {
 
-		int r = position / this.rows;
+		int r = position / this.cols;
 		int c = position % this.cols;
 
 		return (this.answer[r][c] == null);
@@ -160,6 +158,25 @@ public class GridAdapter extends BaseAdapter {
 
 	public String[][] getCorrectAnswer() {
 		return correctAnswer;
+	}
+
+	public void printlnAnswer() {
+		String str = "";
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+
+				if (answer[r][c] == null)
+					str += "*";
+				else{
+					str += answer[r][c];
+				}
+				if (c == cols - 1)
+					str += "\n";
+
+			}
+		}
+
+		System.out.println(str);
 	}
 
 }

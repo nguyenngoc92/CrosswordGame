@@ -4,7 +4,7 @@
     <color name="normal">#000</color>
     <color name="draft">#999</color>
     <color name="wrong">#F00</color>
-    <color name="right">#0F0</color>
+    <color name="right">#651fff</color>
     <color name="gridlist_divider">#BBB</color>
     <color name="genre">#666666</color>
     <color name="year">#888888</color>

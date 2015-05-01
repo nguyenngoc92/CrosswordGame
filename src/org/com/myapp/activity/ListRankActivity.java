@@ -59,7 +59,7 @@ public class ListRankActivity extends ActionBarActivity {
 
 		if (httpConnection.checkNetWorkState(getApplicationContext())) {
 			if (id != 0) {
-				sendRequestGetListUserRank(0, lenght);
+				sendRequestGetListUserRank(id, lenght);
 			}
 
 		} else {
@@ -102,7 +102,12 @@ public class ListRankActivity extends ActionBarActivity {
 
 				try {
 
-					String url = AppConfig.getTopRankUserByMatchUrl;
+					String url;
+					if (flag.equalsIgnoreCase(AppConfig.FLAG_COMPETITION)) {
+						url = AppConfig.getTopRankUserByCompetitionUrl;
+					} else {
+						url = AppConfig.getTopRankUserByMatchUrl;
+					}
 
 					restTemplate.getMessageConverters().add(
 							new MappingJackson2HttpMessageConverter());

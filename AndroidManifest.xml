@@ -24,28 +24,28 @@
             </intent-filter>
         </activity>
         <activity android:name="org.com.myapp.activity.RegisterActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.MainActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.SubjectActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.GameActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.LoginActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.MyRankActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.MatchRankActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.ListRankActivity" >
-            >
+            >
         </activity>
     </application>
 

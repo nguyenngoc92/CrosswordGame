@@ -27,6 +27,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -247,38 +248,48 @@ public class PlayActivity extends ActionBarActivity implements
 
 							currentMode = GRID_MODE.CHECK;
 							double endTime = System.currentTimeMillis();
-							List<Integer> positions = getListPositionWrong();
-							showError(positions);
+							float time = (float) (((int)(endTime - initialTime) / 60)/1000);
+							Map<Integer, List<Word>> map = getWordRightAndWrong();
+
+							showErrorPosition(getListPositionByListWord(map
+									.get(1)));
+							showRightPositition(getListPositionByListWord(map
+									.get(0)));
+
 							gridAdapter.notifyDataSetChanged();
 
-							float score = calculateGrade(getWordRight());
+							gridAdapter.printlnAnswer();
+
+							float score = calculateGrade(map.get(0));
 
 							Toast t = Toast.makeText(getApplicationContext(),
-									score + "", Toast.LENGTH_SHORT);
+									score + " " + time, Toast.LENGTH_SHORT);
 							t.show();
-
-							float time = (float) ((endTime - initialTime) / (60 * 1000));
-
-							ScoreForm scoreForm = new ScoreForm(m.getId(),
-									score, time);
-							MatchItemForm matchItem = createMatchItemForm(m);
-
-							if (httpConnection
-									.checkNetWorkState(PlayActivity.this)) {
-								sendRequestUpdateGrade(scoreForm);
-								if (matchItem.getIdList().size() != 0) {
-
-									sendRequestUpdateQuestionInfor(matchItem);
-								}
-
-							} else {
-								Toast toast = Toast
-										.makeText(
-												getApplicationContext(),
-												"Not connection internet !\n Your grade cannot save !",
-												Toast.LENGTH_SHORT);
-								toast.show();
-							}
+							/*
+							 * float score = calculateGrade(getWordRight());
+							 * 
+							 * Toast t = Toast.makeText(getApplicationContext(),
+							 * score + "", Toast.LENGTH_SHORT); t.show();
+							 * 
+							 * float time = (float) ((endTime - initialTime) /
+							 * (60 * 1000));
+							 * 
+							 * ScoreForm scoreForm = new ScoreForm(m.getId(),
+							 * score, time); MatchItemForm matchItem =
+							 * createMatchItemForm(m);
+							 * 
+							 * if (httpConnection
+							 * .checkNetWorkState(PlayActivity.this)) {
+							 * sendRequestUpdateGrade(scoreForm); if
+							 * (matchItem.getIdList().size() != 0) {
+							 * 
+							 * // sendRequestUpdateQuestionInfor(matchItem); }
+							 * 
+							 * } else { Toast toast = Toast .makeText(
+							 * getApplicationContext(),
+							 * "Not connection internet !\n Your grade cannot save !"
+							 * , Toast.LENGTH_SHORT); toast.show(); }
+							 */
 
 						}
 
@@ -337,7 +348,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 				Intent intent = new Intent(PlayActivity.this,
 						MyRankActivity.class);
-				intent.putExtra("ID", id);
+				intent.putExtra("ID", this.id);
 				intent.putExtra(AppConfig.FLAG, AppConfig.FLAG_COMPETITION);
 				startActivity(intent);
 
@@ -356,7 +367,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 				Intent intent = new Intent(PlayActivity.this,
 						ListRankActivity.class);
-				intent.putExtra("ID", id);
+				intent.putExtra("ID", this.id);
 				intent.putExtra(AppConfig.FLAG, AppConfig.FLAG_COMPETITION);
 				startActivity(intent);
 
@@ -387,7 +398,7 @@ public class PlayActivity extends ActionBarActivity implements
 		return new MatchItemForm(m.getId(), idList);
 	}
 
-	protected void showError(List<Integer> positions) {
+	protected void showErrorPosition(List<Integer> positions) {
 
 		for (Integer p : positions) {
 
@@ -401,41 +412,98 @@ public class PlayActivity extends ActionBarActivity implements
 
 	}
 
-	protected List<Integer> getListPositionWrong() {
+	protected void showRightPositition(List<Integer> positions) {
+		for (Integer p : positions) {
 
-		String answer[][] = gridAdapter.getAnswer();
+			TextView v = (TextView) grid.getChildAt(p);
 
-		List<Integer> list = new ArrayList<Integer>();
-		for (Word w : wordList) {
+			if (v != null) {
+				v.setTextColor(this.getResources().getColor(R.color.right));
+			}
 
-			int r = w.getRow();
-			int c = w.getCol();
-			int rMax = w.getMaxRow();
-			int cMax = w.getMaxCol();
-			if (w.getDirection() == Direction.ACROSS) {
+		}
 
-				for (int i = 0; i <= cMax - c; i++) {
-					if ((w.getAnswer().charAt(i) + "") != answer[r][c + i]) {
+	}
 
-						int p = r * rows + c + i;
-						list.add(p);
-					}
+	protected List<Integer> getListPositionByListWord(List<Word> words) {
+
+		ArrayList<Integer> pList = new ArrayList<Integer>();
+
+		for (Word word : words) {
+
+			int r = word.getRow();
+			int c = word.getCol();
+			if (word.getDirection() == Direction.ACROSS) {
+				for (int i = 0; i < word.getAnswer().length(); i++) {
+
+					int tempCol = c + i;
+					int position = r * this.cols + tempCol;
+					pList.add(position);
+
 				}
 
-			} else if (w.getDirection() == Direction.DOWN) {
+			} else {
 
-				for (int i = 0; i <= rMax - r; i++) {
-					if ((w.getAnswer().charAt(i) + "") != answer[r + i][c]) {
+				for (int i = 0; i < word.getAnswer().length(); i++) {
 
-						int p = (r + i) * cols + c;
-						list.add(p);
-					}
+					int tempRow = r + i;
+					int position = tempRow * this.cols + c;
+					pList.add(position);
 				}
 			}
 
 		}
 
-		return list;
+		return pList;
+	}
+
+	@SuppressLint("UseSparseArrays")
+	protected Map<Integer, List<Word>> getWordRightAndWrong() {
+
+		String[][] answer = gridAdapter.getAnswer();
+
+		Map<Integer, List<Word>> map = new HashMap<Integer, List<Word>>();
+		ArrayList<Word> answerRight = new ArrayList<Word>();
+		ArrayList<Word> answerWrong = new ArrayList<Word>();
+		for (Word word : wordList) {
+
+			if (checkWordAnsweredTrue(word, answer)) {
+				answerRight.add(word);
+			} else
+				answerWrong.add(word);
+
+		}
+
+		map.put(0, answerRight);
+		map.put(1, answerWrong);
+		return map;
+	}
+
+	private boolean checkWordAnsweredTrue(Word word, String[][] answer) {
+
+		String _answer = word.getAnswer();
+		int r = word.getRow();
+		int c = word.getCol();
+		if (word.getDirection() == Direction.ACROSS) {
+
+			for (int i = 0; i < _answer.length(); i++) {
+
+				if (!(_answer.charAt(i) + "")
+						.equalsIgnoreCase(answer[r][c + i]))
+					return false;
+			}
+		} else {
+			for (int i = 0; i < _answer.length(); i++) {
+
+				if (!(_answer.charAt(i) + "")
+						.equalsIgnoreCase(answer[r + i][c])) {
+					return false;
+				}
+			}
+
+		}
+
+		return true;
 	}
 
 	@Override
@@ -763,34 +831,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 	}
 
-	private List<Word> getWordRight() {
-
-		String[][] answer = this.gridAdapter.getAnswer();
-		ArrayList<Word> wordRights = new ArrayList<Word>();
-		for (Word word : wordList) {
-
-			boolean check = this.checkWordRight(word, answer);
-
-			if (check) {
-				wordRights.add(word);
-				int id = word.getItem().getId();
-				List<ItemData> items = m.getItems();
-				for (ItemData item : items) {
-					if (item.getId() == id) {
-						item.setCheck(true);
-					} else {
-						item.setCheck(false);
-					}
-				}
-
-			}
-
-		}
-
-		return wordRights;
-
-	}
-
 	private float calculateGrade(List<Word> wordAnswers) {
 
 		List<Word> hList = new ArrayList<Word>();
@@ -826,35 +866,6 @@ public class PlayActivity extends ActionBarActivity implements
 		int totalGrade = (totalLetter - countCommon) * 10;
 
 		return (float) totalGrade;
-	}
-
-	private boolean checkWordRight(Word word, String[][] answer) {
-
-		int r = word.getRow();
-		int c = word.getCol();
-
-		if (word.getDirection() == Direction.ACROSS) {
-
-			for (int i = 0; i < word.getAnswer().length(); i++) {
-
-				if ((word.getAnswer().charAt(i) + "") != answer[r][c + i]) {
-
-					return false;
-				}
-			}
-
-		} else if (word.getDirection() == Direction.DOWN) {
-
-			for (int i = 0; i < word.getAnswer().length(); i++) {
-
-				if ((word.getAnswer().charAt(i) + "") != answer[r + i][c]) {
-
-					return false;
-				}
-			}
-
-		}
-		return true;
 	}
 
 	private void solveAnswer() {
