@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.com.myapp.AppConfig;
 import org.com.myapp.adapter.GridAdapter;
@@ -35,6 +37,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.TypedValue;
 import android.view.Display;
@@ -91,13 +94,15 @@ public class PlayActivity extends ActionBarActivity implements
 
 	private View view;
 
-	private double initialTime;
-
 	private MatchData m;
 
 	private int id = 0;
 	private String flag;
 	private HttpConnection httpConnection = HttpConnection.getInstance();
+
+	private TextView tvTimer;
+	private int countTime = 0;
+	private boolean isPause = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -147,10 +152,9 @@ public class PlayActivity extends ActionBarActivity implements
 		this.previousPosition = -1;
 		this.currentDir = -1;
 		this.tvDescription.setText(null);
-		this.initialTime = 0;
-		// this.gridSize = 0;
 		this.rows = 0;
 		this.cols = 0;
+		this.countTime = 0;
 	}
 
 	private void createGrid(ArrayList<Word> words) {
@@ -160,7 +164,6 @@ public class PlayActivity extends ActionBarActivity implements
 		gridCell = factory.pickBestGrid();
 
 		if (gridCell != null) {
-			// this.gridSize = gridCell.length;
 			rows = gridCell.length;
 			cols = gridCell[0].length;
 			wordList.addAll(factory.getWords());
@@ -191,7 +194,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 			this.keyboardOverlay = (TextView) findViewById(R.id.keyboard_overlay);
 
-			this.initialTime = System.currentTimeMillis();
 		} else {
 			System.out
 					.println("==========================================================");
@@ -228,7 +230,46 @@ public class PlayActivity extends ActionBarActivity implements
 			getMenuInflater().inflate(R.menu.competition_menu, menu);
 		}
 
+		MenuItem timerItem = menu.findItem(R.id.action_timer);
+		tvTimer = (TextView) MenuItemCompat.getActionView(timerItem);
+
+		startTimer();
 		return true;
+	}
+
+	private void startTimer() {
+
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+
+			@Override
+			public void run() {
+
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+
+						if (!isPause) {
+							String str = "";
+							if (countTime < 60) {
+								str = "00 : " + countTime;
+							} else {
+
+								str = countTime / 60 + ":" + countTime % 60;
+							}
+
+							System.out.println(str);
+							tvTimer.setText(str);
+							countTime++;
+						} else {
+							cancel();
+						}
+
+					}
+				});
+			}
+		}, 1000, 1000);
 	}
 
 	@Override
@@ -247,8 +288,10 @@ public class PlayActivity extends ActionBarActivity implements
 						public void onClick(DialogInterface dialog, int which) {
 
 							currentMode = GRID_MODE.CHECK;
-							double endTime = System.currentTimeMillis();
-							float time = (float) (((int)(endTime - initialTime) / 60)/1000);
+							isPause = true;
+
+							
+							float time = (float) (((int) (countTime *1.0/0.6))*1.0 /100);
 							Map<Integer, List<Word>> map = getWordRightAndWrong();
 
 							showErrorPosition(getListPositionByListWord(map
