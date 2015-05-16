@@ -102,6 +102,7 @@ public class ListRankActivity extends ActionBarActivity {
 
 				try {
 
+					System.out.println(flag);
 					String url;
 					if (flag.equalsIgnoreCase(AppConfig.FLAG_COMPETITION)) {
 						url = AppConfig.getTopRankUserByCompetitionUrl;
@@ -114,6 +115,7 @@ public class ListRankActivity extends ActionBarActivity {
 					Map<String, String> paramsMap = new HashMap<String, String>();
 					paramsMap.put("id", id + "");
 					paramsMap.put("lenght", lenght + "");
+					System.out.println("ID :" + id + "  Lenght: " + lenght);
 
 					ResponseEntity<UserData[]> userEntity = restTemplate
 							.getForEntity(url, UserData[].class, paramsMap);

@@ -61,7 +61,12 @@ public class HttpConnection {
 		client.getCredentialsProvider().setCredentials(
 				new AuthScope(host, port), credentials);
 
-		return new HttpComponentsClientHttpRequestFactory(client);
+		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
+				client);
+
+		requestFactory.setConnectTimeout(20 * 1000);
+		requestFactory.setReadTimeout(20 * 1000);
+		return requestFactory;
 	}
 
 }

@@ -11,8 +11,8 @@
     <string name="forgotPass">Forgot password ?</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="Start">start</string>
-    <string name="Rank">rank</string>
+    <string name="Start">Start</string>
+    <string name="Rank">Rank</string>
     <string name="create_account">Create new account</string>
     <string name="have_account">Have account ?</string>
     <string name="play_continue">Continue</string>
@@ -39,5 +39,9 @@
         <item name="android:shadowDy">1</item>
         <item name="android:shadowRadius">1</item>
     </style>
+        <string name="account_setting">Setting</string>
+        <string name="help">Help</string>
+        <string name="about">About</string>
+        <string name="feedBack">FeedBack</string>
 
 </resources>

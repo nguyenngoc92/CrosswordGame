@@ -1,14 +1,16 @@
 package org.com.myapp.activity;
 
 import java.text.SimpleDateFormat;
+
 import org.com.myapp.AppConfig;
 import org.com.myapp.inet.HttpConnection;
 import org.com.myapp.model.CompetitionData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -33,11 +35,12 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		this.init();
+		this.sendRequestGetCurrentCompetition();
 
 	}
 
 	private void init() {
-		Button btnPlay = (Button) findViewById(R.id.btnPlay);
+		Button btnPlay = (Button) findViewById(R.id.btnStart);
 
 		btnPlay.setOnClickListener(new View.OnClickListener() {
 
@@ -58,28 +61,39 @@ public class MainActivity extends ActionBarActivity {
 			}
 		});
 
-		Button btnRank = (Button) findViewById(R.id.btnRank);
-
-		btnRank.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View view) {
-
-				Intent intent = new Intent(getApplicationContext(),
-						ListRankActivity.class);
-				// intent.putExtra(AppConfig.USER_DATA_LIST, RESULT_O)
-				startActivity(intent);
-
-			}
-		});
-
-		Button btnCompetition = (Button) findViewById(R.id.btnCompetition);
-		btnCompetition.setOnClickListener(new View.OnClickListener() {
+		Button btnSetting = (Button) findViewById(R.id.btnSetting);
+		btnSetting.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
 
-				sendRequestGetCurrentCompetition();
+			}
+		});
+
+		Button btnHelp = (Button) findViewById(R.id.btnHelp);
+		btnHelp.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+			}
+		});
+
+		Button btnAbout = (Button) findViewById(R.id.btnAbount);
+		btnAbout.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+			}
+		});
+
+		Button btnFeedBack = (Button) findViewById(R.id.btnFeedBack);
+		btnFeedBack.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
 			}
 		});
 	}
@@ -109,13 +123,12 @@ public class MainActivity extends ActionBarActivity {
 					ResponseEntity<CompetitionData> entity = restTemplate
 							.getForEntity(AppConfig.getCurrentCompetitionUrl,
 									CompetitionData.class);
-
 					if (entity.getStatusCode() == HttpStatus.OK) {
 
 						return entity.getBody();
 					}
 
-				} catch (HttpClientErrorException e) {
+				} catch (RestClientException e) {
 					e.printStackTrace();
 				}
 				return null;
@@ -142,6 +155,8 @@ public class MainActivity extends ActionBarActivity {
 							.findViewById(R.id.tvDescrible);
 					Button btnDialog = (Button) dialog
 							.findViewById(R.id.btnTakePartIn);
+					Button btnCancel = (Button) dialog
+							.findViewById(R.id.btnCancel);
 
 					tvTitle.setText(competitionData.getName());
 					SimpleDateFormat formatter = new SimpleDateFormat(
@@ -164,6 +179,15 @@ public class MainActivity extends ActionBarActivity {
 							intent.putExtra("ID",
 									competitionData.getIdCompetition());
 							startActivity(intent);
+						}
+					});
+
+					btnCancel.setOnClickListener(new View.OnClickListener() {
+
+						@Override
+						public void onClick(View arg0) {
+							dialog.dismiss();
+
 						}
 					});
 					dialog.show();

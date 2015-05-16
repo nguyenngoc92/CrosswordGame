@@ -81,7 +81,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 	private ArrayList<Word> wordList = new ArrayList<Word>();
 
-	private ArrayList<View> selectedArea = new ArrayList<View>();
 	private ArrayList<View> currentArea = new ArrayList<View>();
 
 	private boolean dowIsPlayable;
@@ -95,8 +94,9 @@ public class PlayActivity extends ActionBarActivity implements
 	private View view;
 
 	private MatchData m;
+	MenuItem timerItem;
 
-	private int id = 0;
+	private int idSubject = 0;
 	private String flag;
 	private HttpConnection httpConnection = HttpConnection.getInstance();
 
@@ -110,10 +110,10 @@ public class PlayActivity extends ActionBarActivity implements
 
 		setContentView(R.layout.activity_play);
 
-		// flag = getIntent().getStringExtra(AppConfig.FLAG);
+		flag = getIntent().getStringExtra(AppConfig.FLAG);
 
-		// id = getIntent().getIntExtra("ID", 0);
-		System.out.println(flag + " " + id);
+		idSubject = getIntent().getIntExtra("ID", 0);
+		System.out.println(flag + " " + idSubject);
 
 		this.init();
 	}
@@ -126,10 +126,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 		if (httpConnection.checkNetWorkState(PlayActivity.this)) {
 
-			// this.sendRequestGetMatch(id, flag);
-			resetGrid();
-			words.addAll(AppConfig.getWords());
-			createGrid(words);
+			this.sendRequestGetMatch(idSubject, flag);
 
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(),
@@ -146,7 +143,6 @@ public class PlayActivity extends ActionBarActivity implements
 		this.wordList = new ArrayList<Word>();
 		this.m = null;
 		this.gridCell = null;
-		selectedArea = new ArrayList<View>();
 		currentArea = new ArrayList<View>();
 		this.tmpWord = null;
 		this.previousPosition = -1;
@@ -155,6 +151,8 @@ public class PlayActivity extends ActionBarActivity implements
 		this.rows = 0;
 		this.cols = 0;
 		this.countTime = 0;
+		this.currentMode = GRID_MODE.NORMAL;
+		this.isPause = false;
 	}
 
 	private void createGrid(ArrayList<Word> words) {
@@ -166,7 +164,14 @@ public class PlayActivity extends ActionBarActivity implements
 		if (gridCell != null) {
 			rows = gridCell.length;
 			cols = gridCell[0].length;
+			System.out.println("R :" + rows + " C:" + cols);
 			wordList.addAll(factory.getWords());
+			System.out.println("List Size : " + wordList.size());
+
+			for (Word w : wordList) {
+				System.out.println(w.getAnswer() + " R: " + w.getRow() + " C: "
+						+ w.getCol() + "Dir:" + w.getDirection());
+			}
 
 			Display display = getWindowManager().getDefaultDisplay();
 			@SuppressWarnings("deprecation")
@@ -224,16 +229,15 @@ public class PlayActivity extends ActionBarActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (flag == AppConfig.FLAG_SUBJECT) {
+		if (flag.equalsIgnoreCase(AppConfig.FLAG_SUBJECT)) {
 			getMenuInflater().inflate(R.menu.game_menu, menu);
-		} else {
+		} else if (flag.equalsIgnoreCase(AppConfig.FLAG_COMPETITION)) {
 			getMenuInflater().inflate(R.menu.competition_menu, menu);
 		}
 
 		MenuItem timerItem = menu.findItem(R.id.action_timer);
 		tvTimer = (TextView) MenuItemCompat.getActionView(timerItem);
 
-		startTimer();
 		return true;
 	}
 
@@ -290,8 +294,7 @@ public class PlayActivity extends ActionBarActivity implements
 							currentMode = GRID_MODE.CHECK;
 							isPause = true;
 
-							
-							float time = (float) (((int) (countTime *1.0/0.6))*1.0 /100);
+							float time = (float) (((int) (countTime * 1.0 / 0.6)) * 1.0 / 100);
 							Map<Integer, List<Word>> map = getWordRightAndWrong();
 
 							showErrorPosition(getListPositionByListWord(map
@@ -303,37 +306,32 @@ public class PlayActivity extends ActionBarActivity implements
 
 							gridAdapter.printlnAnswer();
 
-							float score = calculateGrade(map.get(0));
+							int score = calculateGrade(map.get(0));
 
 							Toast t = Toast.makeText(getApplicationContext(),
 									score + " " + time, Toast.LENGTH_SHORT);
 							t.show();
-							/*
-							 * float score = calculateGrade(getWordRight());
-							 * 
-							 * Toast t = Toast.makeText(getApplicationContext(),
-							 * score + "", Toast.LENGTH_SHORT); t.show();
-							 * 
-							 * float time = (float) ((endTime - initialTime) /
-							 * (60 * 1000));
-							 * 
-							 * ScoreForm scoreForm = new ScoreForm(m.getId(),
-							 * score, time); MatchItemForm matchItem =
-							 * createMatchItemForm(m);
-							 * 
-							 * if (httpConnection
-							 * .checkNetWorkState(PlayActivity.this)) {
-							 * sendRequestUpdateGrade(scoreForm); if
-							 * (matchItem.getIdList().size() != 0) {
-							 * 
-							 * // sendRequestUpdateQuestionInfor(matchItem); }
-							 * 
-							 * } else { Toast toast = Toast .makeText(
-							 * getApplicationContext(),
-							 * "Not connection internet !\n Your grade cannot save !"
-							 * , Toast.LENGTH_SHORT); toast.show(); }
-							 */
 
+							ScoreForm scoreForm = new ScoreForm(m.getId(),
+									score, time);
+							MatchItemForm itemForm = createMatchItemForm(
+									m.getId(), map.get(0));
+							if (httpConnection
+									.checkNetWorkState(PlayActivity.this)) {
+
+								sendRequestUpdateGrade(scoreForm);
+								if (itemForm.getIdList().size() != 0) {
+									sendRequestUpdateQuestionInfor(itemForm);
+								} else {
+									Toast toast = Toast
+											.makeText(
+													getApplicationContext(),
+													"Not connection internet !\n Your grade cannot save !",
+													Toast.LENGTH_SHORT);
+									toast.show();
+								}
+
+							}
 						}
 
 					});
@@ -358,6 +356,9 @@ public class PlayActivity extends ActionBarActivity implements
 			if (currentMode == GRID_MODE.CHECK) {
 
 				this.currentMode = GRID_MODE.SOLVE;
+				this.solveAnswer();
+				gridAdapter.notifyDataSetChanged();
+				currentMode = GRID_MODE.SOLVE;
 
 			} else {
 
@@ -372,6 +373,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 		if (id == R.id.action_getRankByMatch) {
 
+			System.out.println(375);
 			Intent intent = new Intent(getApplicationContext(),
 					ListRankActivity.class);
 			intent.putExtra("ID", m.getId());
@@ -381,7 +383,7 @@ public class PlayActivity extends ActionBarActivity implements
 		}
 
 		if (id == R.id.action_play_continue) {
-			sendRequestGetMatch(id, flag);
+			sendRequestGetMatch(this.idSubject, flag);
 
 		}
 
@@ -391,7 +393,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 				Intent intent = new Intent(PlayActivity.this,
 						MyRankActivity.class);
-				intent.putExtra("ID", this.id);
+				intent.putExtra("ID", this.idSubject);
 				intent.putExtra(AppConfig.FLAG, AppConfig.FLAG_COMPETITION);
 				startActivity(intent);
 
@@ -410,7 +412,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 				Intent intent = new Intent(PlayActivity.this,
 						ListRankActivity.class);
-				intent.putExtra("ID", this.id);
+				intent.putExtra("ID", this.idSubject);
 				intent.putExtra(AppConfig.FLAG, AppConfig.FLAG_COMPETITION);
 				startActivity(intent);
 
@@ -428,17 +430,13 @@ public class PlayActivity extends ActionBarActivity implements
 		return super.onOptionsItemSelected(item);
 	}
 
-	protected MatchItemForm createMatchItemForm(MatchData matchData) {
+	protected MatchItemForm createMatchItemForm(int idMatch, List<Word> list) {
 
-		ArrayList<Integer> idList = new ArrayList<Integer>();
-		for (ItemData item : m.getItems()) {
-
-			if (item.isCheck()) {
-				idList.add(item.getId());
-			}
+		List<Integer> listIdItem = new ArrayList<Integer>();
+		for (int i = 0; i < list.size(); i++) {
+			listIdItem.add(list.get(i).getItem().getId());
 		}
-
-		return new MatchItemForm(m.getId(), idList);
+		return new MatchItemForm(idMatch, listIdItem);
 	}
 
 	protected void showErrorPosition(List<Integer> positions) {
@@ -555,6 +553,8 @@ public class PlayActivity extends ActionBarActivity implements
 		int y = (int) event.getY();
 		int itemPosition = grid.pointToPosition(x, y);
 
+		System.out.println("Position: " + itemPosition);
+
 		switch (event.getAction()) {
 
 		case MotionEvent.ACTION_DOWN: {
@@ -567,34 +567,37 @@ public class PlayActivity extends ActionBarActivity implements
 				return true;
 			}
 
-			boolean hDir = false;
-			boolean vDir = false;
+			List<Word> tempWords = getWordFromPosition(itemPosition);
 
-			hDir = checkHashLeftOrRightChild(itemPosition);
-			vDir = checkHashUnderOrUpChild(itemPosition);
+			if (tempWords.size() != 0) {
 
-			if (hDir) {
-				setCurrentDir(0);
-			} else if (vDir) {
+				// tmpWord = tempWords.get(0);
 
-				setCurrentDir(1);
-			} else {
-				setCurrentDir(-1);
+				tmpWord = getWordFromPositionClicked(itemPosition, tempWords);
+
+				if (tmpWord.getDirection() == Direction.ACROSS) {
+					setCurrentDir(0);
+				} else if (tmpWord.getDirection() == Direction.DOWN) {
+					setCurrentDir(1);
+				} else
+					setCurrentDir(-1);
+
+				if (this.view != null) {
+					resetViewSelected(itemPosition);
+				}
+
+				clearLineClicked();
+				setLineClick(tmpWord);
+
+				this.dowIsPlayable = true;
+
+				view = child;
+				child.setBackgroundResource(R.drawable.area_current);
+
+				this.gridAdapter.notifyDataSetChanged();
+				this.previousPosition = itemPosition;
+
 			}
-
-			clearLineClicked();
-			setLineClicked(itemPosition);
-			this.dowIsPlayable = true;
-
-			if (view != null) {
-				resetViewSelected(itemPosition);
-			}
-
-			view = child;
-			child.setBackgroundResource(R.drawable.area_current);
-			selectedArea.add(child);
-			this.gridAdapter.notifyDataSetChanged();
-			this.previousPosition = itemPosition;
 
 			break;
 		}
@@ -605,9 +608,13 @@ public class PlayActivity extends ActionBarActivity implements
 
 				return true;
 			}
+			if (tmpWord != null) {
+				String title = tmpWord.getItem().getQuestion();
 
-			String title = tmpWord.getItem().getQuestion();
-			this.tvDescription.setText(title);
+				this.tvDescription.setText(tmpWord.getDirection() + ": "
+						+ title);
+
+			}
 
 			this.gridAdapter.notifyDataSetChanged();
 
@@ -617,11 +624,93 @@ public class PlayActivity extends ActionBarActivity implements
 		return true;
 	}
 
+	private Word getWordFromPositionClicked(int itemPosition,
+			List<Word> tempWords) {
+
+		for (Word w : tempWords) {
+			Position p = w.getPosition();
+			if (itemPosition == (p.getC() + p.getR() * this.cols)) {
+				return w;
+			}
+		}
+
+		if (tempWords.size() != 0)
+			return tempWords.get(0);
+		return null;
+
+	}
+
+	private void setLineClick(Word tmpWord) {
+
+		Position p = tmpWord.getPosition();
+
+		String answer = tmpWord.getAnswer();
+		if (tmpWord.getDirection() == Direction.ACROSS) {
+			for (int i = 0; i < answer.length(); i++) {
+
+				View v = grid.getChildAt(p.getC() + p.getR() * this.cols + i);
+				v.setBackgroundResource(R.drawable.area_selected);
+				currentArea.add(v);
+			}
+		} else {
+			for (int i = 0; i < answer.length(); i++) {
+				View v = grid.getChildAt(p.getC() + p.getR() * this.cols + i
+						* this.cols);
+				v.setBackgroundResource(R.drawable.area_selected);
+				currentArea.add(v);
+			}
+		}
+
+	}
+
+	private List<Word> getWordFromPosition(int itemPosition) {
+
+		ArrayList<Word> words = new ArrayList<Word>();
+		for (int i = 0; i < wordList.size(); i++) {
+			Word w = wordList.get(i);
+			Position p = w.getPosition();
+
+			int beginPosition = p.getC() + p.getR() * this.cols;
+
+			if (p.getDir() == Direction.ACROSS) {
+
+				int maxCol = p.getC() + w.getItem().getAnswer().length() - 1;
+
+				int endPosition = maxCol + p.getR() * this.cols;
+				if (itemPosition >= beginPosition
+						&& itemPosition <= endPosition) {
+
+					if (itemPosition / this.cols == p.getR()
+							&& itemPosition % this.cols >= p.getC()
+							&& itemPosition % this.cols <= maxCol) {
+						words.add(w);
+					}
+				}
+
+			} else if (p.getDir() == Direction.DOWN) {
+
+				int maxRow = p.getR() + w.getItem().getAnswer().length() - 1;
+				int endPosition = p.getC() + maxRow * this.cols;
+				if (itemPosition >= beginPosition
+						&& itemPosition <= endPosition) {
+
+					if (itemPosition % this.cols == p.getC()
+							&& itemPosition / this.cols >= p.getR()
+							&& itemPosition / this.cols <= maxRow) {
+						words.add(w);
+					}
+				}
+			}
+
+		}
+		return words;
+	}
+
 	private void resetViewSelected(int position) {
 
 		if (currentDir == 0) {
 
-			if (position / this.rows == previousPosition / this.rows) {
+			if (position / this.cols == previousPosition / this.cols) {
 				view.setBackgroundResource(R.drawable.area_selected);
 			} else {
 				view.setBackgroundResource(R.drawable.area_empty);
@@ -638,91 +727,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 	}
 
-	private void setLineClicked(int position) {
-		Word currentWord = getCurrentWord(currentDir, position);
-		if (currentWord != null) {
-
-			tmpWord = currentWord;
-
-			if (currentDir == 0) {
-
-				for (int i = 0; i < currentWord.getItem().getAnswer().length(); i++) {
-
-					Position p = currentWord.getPosition();
-					int begin = p.getC() + this.cols * p.getR();
-					View v = grid.getChildAt(begin + i);
-					v.setBackgroundResource(R.drawable.area_selected);
-					currentArea.add(v);
-				}
-
-			} else if (currentDir == 1) {
-
-				for (int i = 0; i < currentWord.getItem().getAnswer().length(); i++) {
-
-					Position p = currentWord.getPosition();
-					int begin = p.getC() + this.cols * p.getR();
-					View v = grid.getChildAt(begin + i * this.cols);
-					v.setBackgroundResource(R.drawable.area_selected);
-					currentArea.add(v);
-				}
-			}
-
-		}
-
-	}
-
-	private Word getCurrentWord(int currentDir, int position) {
-
-		if (currentDir == 0) {
-
-			for (Word w : wordList) {
-
-				Position p = w.getPosition();
-
-				int lenght = w.getItem().getAnswer().length();
-
-				int dir = p.getDir() == Direction.ACROSS ? 0 : 1;
-				if (dir == 0) {
-
-					int beginPosition = p.getC() + p.getR() * this.cols;
-					int endPosition = beginPosition + lenght - 1;
-
-					if (position >= beginPosition && position <= endPosition) {
-
-						return w;
-					}
-
-				}
-			}
-
-		} else if (currentDir == 1) {
-
-			for (Word w : wordList) {
-				Position p = w.getPosition();
-
-				int lenght = w.getItem().getAnswer().length();
-				int dir = p.getDir() == Direction.ACROSS ? 0 : 1;
-				if (dir == 1) {
-					int beginPosition = p.getC() + p.getR() * this.cols;
-					int endPosition = beginPosition + this.cols
-							* (p.getR() + lenght - 1);
-
-					if (position >= beginPosition && position <= endPosition) {
-
-						int mod1 = beginPosition % this.cols;
-						int mod2 = position % this.cols;
-
-						if (mod1 == mod2)
-							return w;
-					}
-				}
-
-			}
-		}
-
-		return null;
-	}
-
 	private void clearLineClicked() {
 
 		for (View v : currentArea) {
@@ -737,47 +741,6 @@ public class PlayActivity extends ActionBarActivity implements
 	private void setCurrentDir(int i) {
 
 		this.currentDir = i;
-	}
-
-	private boolean checkHashUnderOrUpChild(int position) {
-		View upChild = this.grid.getChildAt(position - this.cols);
-		View underChild = this.grid.getChildAt(position + this.cols);
-		if (upChild != null || underChild != null) {
-			if (upChild != null) {
-				if (upChild.getTag().equals(GridAdapter.AREA_WRITABLE)) {
-					return true;
-				}
-			}
-
-			if (underChild != null) {
-				if (underChild.getTag().equals(GridAdapter.AREA_WRITABLE)) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	private boolean checkHashLeftOrRightChild(int position) {
-
-		View leftChild = this.grid.getChildAt(position - 1);
-		View rightChild = this.grid.getChildAt(position + 1);
-
-		if (leftChild != null || rightChild != null) {
-
-			if (leftChild != null)
-				if (leftChild.getTag().equals(GridAdapter.AREA_WRITABLE)) {
-					return true;
-				}
-
-			if (rightChild != null) {
-				if (rightChild.getTag().equals(GridAdapter.AREA_WRITABLE)) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -855,8 +818,8 @@ public class PlayActivity extends ActionBarActivity implements
 
 				if (value.equals(" ")) {
 
-					tmp = this.currentDir == 0 ? previousPosition - this.cols
-							: previousPosition - 1;
+					tmp = this.currentDir == 0 ? previousPosition - 1
+							: previousPosition - this.cols;
 				} else {
 
 					tmp = this.currentDir == 0 ? previousPosition + 1
@@ -874,7 +837,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 	}
 
-	private float calculateGrade(List<Word> wordAnswers) {
+	private int calculateGrade(List<Word> wordAnswers) {
 
 		List<Word> hList = new ArrayList<Word>();
 		List<Word> vList = new ArrayList<Word>();
@@ -906,13 +869,26 @@ public class PlayActivity extends ActionBarActivity implements
 			}
 		}
 
-		int totalGrade = (totalLetter - countCommon) * 10;
+		int totalGrade = (totalLetter - countCommon) * 5;
 
-		return (float) totalGrade;
+		return totalGrade;
 	}
 
 	private void solveAnswer() {
 
+		for (int r = 0; r < this.rows; r++) {
+			for (int c = 0; c < this.cols; c++) {
+				int position = c + r * this.cols;
+				if (gridCell[r][c].getLetter() != null) {
+					gridAdapter.setValue(position, gridCell[r][c].getLetter());
+					TextView tv = (TextView) grid.getChildAt(position);
+					tv.setText(gridCell[r][c].getLetter());
+					tv.setTextColor(this.getResources()
+							.getColor(R.color.normal));
+				}
+
+			}
+		}
 	}
 
 	private void sendRequestGetMatch(int id, final String flag) {
@@ -969,42 +945,46 @@ public class PlayActivity extends ActionBarActivity implements
 				// TODO Auto-generated method stub
 				super.onPostExecute(entity);
 
-				if (entity.getStatusCode() == HttpStatus.OK) {
+				if (entity != null) {
+					if (entity.getStatusCode() == HttpStatus.OK) {
 
-					MatchData match = entity.getBody();
-					System.out.println(match.getId());
-					if (match != null && match.getItems() != null
-							&& match.getItems().size() != 0) {
+						MatchData match = entity.getBody();
+						System.out.println(match.getId());
+						if (match != null && match.getItems() != null
+								&& match.getItems().size() != 0) {
 
-						resetGrid();
-						System.out.println(match.getId() + " Size "
-								+ match.getItems().size());
-						m = match;
-						words.addAll(createWordList(m));
-						createGrid(words);
+							resetGrid();
+							System.out.println(match.getId() + " Size "
+									+ match.getItems().size());
+							m = match;
+							words.addAll(createWordList(m));
+							createGrid(words);
 
-						progressDialog.dismiss();
-					} else {
+							progressDialog.dismiss();
+							startTimer();
+						} else {
 
-						progressDialog.dismiss();
-						final Dialog dialog = new Dialog(PlayActivity.this);
-						dialog.setContentView(R.layout.dialog_finish);
-						dialog.setTitle("Congratulation you !");
+							progressDialog.dismiss();
+							final Dialog dialog = new Dialog(PlayActivity.this);
+							dialog.setContentView(R.layout.dialog_finish);
+							dialog.setTitle("Congratulation you !");
 
-						Button btn = (Button) dialog
-								.findViewById(R.id.btnDialogFinish);
-						btn.setOnClickListener(new View.OnClickListener() {
+							Button btn = (Button) dialog
+									.findViewById(R.id.btnDialogFinish);
+							btn.setOnClickListener(new View.OnClickListener() {
 
-							@Override
-							public void onClick(View view) {
-								// TODO Auto-generated method stub
-								dialog.dismiss();
-							}
-						});
+								@Override
+								public void onClick(View view) {
+									// TODO Auto-generated method stub
+									dialog.dismiss();
+								}
+							});
 
-						dialog.show();
+							dialog.show();
 
+						}
 					}
+
 				}
 
 			}
@@ -1121,10 +1101,11 @@ public class PlayActivity extends ActionBarActivity implements
 					tvTitle.setText(result.getUsername());
 					tvScore.setText(result.getScore() + "");
 					tvTime.setText(result.getTime() + "");
-					if (flag == AppConfig.FLAG_SUBJECT) {
+					if (flag.equalsIgnoreCase(AppConfig.FLAG_SUBJECT)) {
 						tvRank.setText(result.getRank() + "");
 					} else {
 						tvRank.setText("");
+						tvRank.setVisibility(View.INVISIBLE);
 					}
 
 					dialog.setCancelable(true);
@@ -1149,6 +1130,14 @@ public class PlayActivity extends ActionBarActivity implements
 
 		SendRequestUpdateGrade requestUpdateGrade = new SendRequestUpdateGrade();
 		requestUpdateGrade.execute(scoreForm);
+	}
+
+	@Override
+	public void onBackPressed() {
+
+		super.onBackPressed();
+		this.isPause = true;
+		this.finish();
 	}
 
 }

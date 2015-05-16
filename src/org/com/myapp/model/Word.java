@@ -44,7 +44,7 @@ public class Word implements Serializable {
 
 	public int getMaxRow() {
 		if (position.getDir() == Direction.ACROSS)
-			return this.getRow();
+			return position.getR();
 		else
 			return position.getR() + item.getAnswer().length() - 1;
 	}
@@ -54,7 +54,7 @@ public class Word implements Serializable {
 		if (position.getDir() == Direction.ACROSS)
 			return position.getC() + item.getAnswer().length() - 1;
 		else
-			return this.getCol();
+			return this.position.getC();
 	}
 
 	public Direction getDirection() {

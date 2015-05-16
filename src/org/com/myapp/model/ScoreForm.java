@@ -6,14 +6,14 @@ import java.io.Serializable;
 public class ScoreForm implements Serializable {
 
 	private int matchId;
-	private float point;
+	private int point;
 	private float time;
 
 	public ScoreForm() {
 
 	}
 
-	public ScoreForm(int matchId, float point, float time) {
+	public ScoreForm(int matchId, int point, float time) {
 		this.matchId = matchId;
 		this.point = point;
 		this.time = time;
@@ -27,11 +27,11 @@ public class ScoreForm implements Serializable {
 		this.matchId = matchId;
 	}
 
-	public float getPoint() {
+	public int getPoint() {
 		return point;
 	}
 
-	public void setPoint(float point) {
+	public void setPoint(int point) {
 		this.point = point;
 	}
 

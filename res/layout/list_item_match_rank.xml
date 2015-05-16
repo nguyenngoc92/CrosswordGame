@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="80dp"
+    android:layout_margin="5dp"
+    android:background="#E1BEE7"
     android:gravity="center"
     android:orientation="horizontal"
     android:weightSum="3" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center" >
 
@@ -17,54 +19,61 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_launcher" />
+            android:src="@drawable/user_man" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:orientation="vertical"
-        android:paddingLeft="5dip" >
+        android:paddingLeft="5dip"
+        android:weightSum="3" >
 
         <TextView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:gravity="center_vertical"
-            android:paddingTop="5dip"
-            android:text="nfk jbbj" />
+            android:text="nguyen ngoc"
+            android:textColor="#2962FF" />
 
         <TextView
             android:id="@+id/tvTime"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dip"
-            android:text="nfk jbbj" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="2.30"
+            android:textColor="#2962FF" />
 
         <TextView
             android:id="@+id/tvScore"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:paddingTop="5dip"
-            android:text="nfkgn" />
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="340"
+            android:textColor="#F50057" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical" >
 
         <TextView
             android:id="@+id/tvRank"
-            android:layout_width="match_parent"
+            android:layout_width="74dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="nf " />
+            android:text="1 "
+            android:textColor="#F50057"
+            android:textSize="20sp" />
     </LinearLayout>
 
 </LinearLayout>

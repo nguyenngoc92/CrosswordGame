@@ -43,8 +43,8 @@ public class CrossWordFactory {
 			Cell[][] gridTemp = this.getSqareGrid(10);
 			listGrid.add(gridTemp);
 
-			if (size > gridTemp.length) {
-				size = grid.length;
+			if (gridTemp != null && size > gridTemp.length) {
+				size = gridTemp.length;
 				index = i;
 			}
 		}
@@ -88,14 +88,28 @@ public class CrossWordFactory {
 																	.length() - 1)
 																	+ "")) {
 
-										tempWord = words.get(i);
-										Position p = new Position(r, c,
-												Direction.DOWN);
-										words.get(i).setPosition(p);
+										boolean check = true;
+										for (int j = 0; j < answer.length(); j++) {
+											Cell tmpCell = bestGrid[r + j][c];
+											if (!(tmpCell.getLetter() != null && tmpCell
+													.getLetter()
+													.equalsIgnoreCase(
+															answer.charAt(j)
+																	+ ""))) {
+												check = false;
+											}
+										}
+
+										if (check) {
+											tempWord = words.get(i);
+											Position p = new Position(r, c,
+													Direction.DOWN);
+											words.get(i).setPosition(p);
+										}
 
 									}
 								}
-								if (c + answer.length() - 1 < bestGrid.length
+								if (c + answer.length() - 1 < bestGrid[0].length
 										&& tempWord == null) {
 
 									Cell maxColCell = bestGrid[r][c
@@ -289,7 +303,6 @@ public class CrossWordFactory {
 		// initialize new grid
 		int rows = r_max - r_min + 1;
 		int cols = c_max - c_min + 1;
-		int sizeGrid = Math.max(rows, cols);
 		Cell[][] newGrid = new Cell[rows][cols];
 
 		// copy the grid onto the smaller grid

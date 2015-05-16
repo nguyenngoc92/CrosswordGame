@@ -1,5 +1,6 @@
 package org.com.myapp.activity;
 
+import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,6 +15,8 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import android.app.ProgressDialog;
@@ -57,7 +60,6 @@ public class LoginActivity extends ActionBarActivity {
 
 		btnLogin.setOnClickListener(new View.OnClickListener() {
 
-			
 			@Override
 			public void onClick(View v) {
 
@@ -143,35 +145,44 @@ public class LoginActivity extends ActionBarActivity {
 				String email = params[0];
 				String password = params[1];
 
-				List<HttpMessageConverter<?>> messageConverters = new LinkedList<HttpMessageConverter<?>>();
+				try {
 
-				messageConverters.add(new FormHttpMessageConverter());
-				messageConverters.add(new StringHttpMessageConverter());
+					List<HttpMessageConverter<?>> messageConverters = new LinkedList<HttpMessageConverter<?>>();
 
-				MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-				map.add("email", email);
-				map.add("password", password);
+					messageConverters.add(new FormHttpMessageConverter());
+					messageConverters.add(new StringHttpMessageConverter());
 
-				RestTemplate restTemplate = HttpConnection.getInstance()
-						.getRestTemplate();
-				restTemplate.setMessageConverters(messageConverters);
-				HttpHeaders requestHeaders = new HttpHeaders();
-				requestHeaders
-						.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+					MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+					map.add("email", email);
+					map.add("password", password);
 
-				org.springframework.http.HttpEntity<MultiValueMap<String, String>> entity = new org.springframework.http.HttpEntity<MultiValueMap<String, String>>(
-						map, requestHeaders);
+					RestTemplate restTemplate = HttpConnection.getInstance()
+							.getRestTemplate();
+					restTemplate.setMessageConverters(messageConverters);
+					HttpHeaders requestHeaders = new HttpHeaders();
+					requestHeaders
+							.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-				ResponseEntity<String> result = restTemplate.exchange(
-						AppConfig.loginUrl, HttpMethod.POST, entity,
-						String.class);
+					org.springframework.http.HttpEntity<MultiValueMap<String, String>> entity = new org.springframework.http.HttpEntity<MultiValueMap<String, String>>(
+							map, requestHeaders);
 
-				HttpHeaders respHeaders = result.getHeaders();
-				String cookies = respHeaders.getFirst("Set-Cookie");
+					ResponseEntity<String> result = restTemplate.exchange(
+							AppConfig.loginUrl, HttpMethod.POST, entity,
+							String.class);
 
-				// System.out.println(cookies);
-				return cookies;
+					HttpHeaders respHeaders = result.getHeaders();
+					String cookies = respHeaders.getFirst("Set-Cookie");
 
+					// System.out.println(cookies);
+					return cookies;
+
+				} catch (HttpClientErrorException ex) {
+
+				} catch (HttpServerErrorException e) {
+					e.printStackTrace();
+				}
+
+				return null;
 			}
 
 			@Override

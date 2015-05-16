@@ -1,39 +1,75 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E3F2FD" >
+    android:background="#BDBDBD"
+    android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/btnPlay"
-        style="@style/DefaultButtonText"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="62dp"
-        android:background="@drawable/button_default_bg"
-        android:text="@string/Start" />
+        android:layout_height="match_parent"
+        android:layout_margin="40dp"
+        android:orientation="vertical"
+        android:weightSum="5" >
 
-    <Button
-        android:id="@+id/btnRank"
-        style="@style/DefaultButtonText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/btnPlay"
-        android:layout_marginTop="75dp"
-        android:background="@drawable/button_default_bg"
-        android:text="@string/Rank" />
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="#448AFF"
+            android:text="@string/Start"
+            android:textColor="#ffffff"
+            android:textSize="30sp"
+            android:textStyle="italic" />
 
-    <Button
-        android:id="@+id/btnCompetition"
-        style="@style/DefaultButtonText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/btnRank"
-        android:layout_marginTop="87dp"
-        android:background="@drawable/button_default_bg"
-        android:text="Competition" />
+        <Button
+            android:id="@+id/btnHelp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="#448AFF"
+            android:text="@string/help"
+            android:textColor="#ffffff"
+            android:textSize="30sp"
+            android:textStyle="italic" />
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/btnSetting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="#448AFF"
+            android:text="@string/action_settings"
+            android:textColor="#ffffff"
+            android:textSize="30sp"
+            android:textStyle="italic" />
+
+        <Button
+            android:id="@+id/btnAbount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="#448AFF"
+            android:text="@string/about"
+            android:textColor="#ffffff"
+            android:textSize="30sp"
+            android:textStyle="italic" />
+
+        <Button
+            android:id="@+id/btnFeedBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="#448AFF"
+            android:text="@string/feedBack"
+            android:textColor="#ffffff"
+            android:textSize="30sp"
+            android:textStyle="italic" />
+    </LinearLayout>
+
+</LinearLayout>

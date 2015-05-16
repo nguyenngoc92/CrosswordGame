@@ -2,8 +2,6 @@ package org.com.myapp.adapter;
 
 import java.util.HashMap;
 
-import org.com.myapp.activity.PlayActivity;
-import org.com.myapp.activity.PlayActivity.GRID_MODE;
 import org.com.myapp.activity.R;
 import org.com.myapp.model.Cell;
 
@@ -11,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -21,8 +20,8 @@ import android.widget.TextView;
 
 public class GridAdapter extends BaseAdapter {
 
-	public static final int AREA_BLOCK = -1;
-	public static final int AREA_WRITABLE = 0;
+	public final static int AREA_BLOCK = -1;
+	public final static int AREA_WRITABLE = 0;
 	private Context context;
 
 	@SuppressLint("UseSparseArrays")
@@ -36,6 +35,8 @@ public class GridAdapter extends BaseAdapter {
 	private Cell[][] grid;
 	private int rows;
 	private int cols;
+
+	int index = 0;
 
 	@SuppressWarnings("deprecation")
 	public GridAdapter(Activity act, Cell[][] grid) {
@@ -96,7 +97,6 @@ public class GridAdapter extends BaseAdapter {
 		int c = (int) (position % this.cols);
 
 		String data = answer[r][c];
-		String correcData = correctAnswer[r][c];
 		Cell cell = grid[r][c];
 
 		if (v == null) {
@@ -111,27 +111,82 @@ public class GridAdapter extends BaseAdapter {
 			if (data != null) {
 				// v.setBackgroundResource(R.drawable.area_empty);
 				v.setBackgroundResource(R.color.cell_empty);
-				v.setTag(this.AREA_WRITABLE);
+				v.setTag(AREA_WRITABLE);
 
 				if (cell.getCellNode() != null
 						&& cell.getCellNode().isStartOfWord()) {
+					index++;
+
+					int id = getBackGroundId(index);
+					if (id != 0) {
+						
+						v.setBackgroundResource(id);
+						v.setBackgroundColor(Color.parseColor("#ffffff"));
+					}
 				}
 			} else {
 				// v.setBackgroundResource(R.drawable.area_block);
 				v.setBackgroundResource(R.color.cell);
-				v.setTag(this.AREA_BLOCK);
+				v.setTag(AREA_BLOCK);
 			}
 
 		}
 		this.views.put(position, v);
 
-		if (((PlayActivity) context).currentMode == GRID_MODE.CHECK) {
-
-		} else if (((PlayActivity) context).currentMode == GRID_MODE.SOLVE) {
-
-		}
 
 		return v;
+	}
+
+	private int getBackGroundId(int index) {
+
+		switch (index) {
+		case 1:
+			return R.drawable.ic_1;
+		case 2:
+			return R.drawable.ic_2;
+
+		case 3:
+			return R.drawable.ic_3;
+
+		case 4:
+			return R.drawable.ic_4;
+
+		case 5:
+			return R.drawable.ic_5;
+
+		case 6:
+			return R.drawable.ic_6;
+
+		case 7:
+			return R.drawable.ic_7;
+
+		case 8:
+			return R.drawable.ic_8;
+		case 9:
+			return R.drawable.ic_9;
+
+		case 10:
+			return R.drawable.ic_10;
+
+		case 11:
+			return R.drawable.ic_11;
+
+		case 12:
+			return R.drawable.ic_12;
+
+		case 13:
+			return R.drawable.ic_13;
+
+		case 14:
+			return R.drawable.ic_14;
+
+		case 15:
+			return R.drawable.ic_15;
+
+		default:
+			return 0;
+		}
+
 	}
 
 	public boolean isBlock(int position) {
@@ -167,7 +222,7 @@ public class GridAdapter extends BaseAdapter {
 
 				if (answer[r][c] == null)
 					str += "*";
-				else{
+				else {
 					str += answer[r][c];
 				}
 				if (c == cols - 1)
