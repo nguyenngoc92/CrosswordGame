@@ -16,7 +16,8 @@
         android:icon="@drawable/ic_launcher"
         android:label=""
         android:theme="@style/AppTheme" >
-        <activity android:name="org.com.myapp.activity.LoginActivity" >
+        <activity android:name="org.com.myapp.activity.PlayActivity" 
+            	  android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,28 +25,28 @@
             </intent-filter>
         </activity>
         <activity android:name="org.com.myapp.activity.RegisterActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.MainActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.SubjectActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.GameActivity" >
-            >
+            >
         </activity>
-        <activity android:name="org.com.myapp.activity.PlayActivity" >
-            >
+        <activity android:name="org.com.myapp.activity.LoginActivity" >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.MyRankActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.MatchRankActivity" >
-            >
+            >
         </activity>
         <activity android:name="org.com.myapp.activity.ListRankActivity" >
-            >
+            >
         </activity>
     </application>
 

@@ -61,6 +61,10 @@ public class PlayActivity extends ActionBarActivity implements
 		NORMAL, CHECK, SOLVE
 	};
 
+	public enum CELL_STATE {
+		EMPTY, SELLECTED, CURRENT
+	};
+
 	public GRID_MODE currentMode = GRID_MODE.NORMAL;
 
 	private CrossWordFactory factory;
@@ -81,7 +85,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 	private ArrayList<Word> wordList = new ArrayList<Word>();
 
-	private ArrayList<View> currentArea = new ArrayList<View>();
+	private ArrayList<Integer> currentArea = new ArrayList<Integer>();
 
 	private boolean dowIsPlayable;
 
@@ -90,8 +94,6 @@ public class PlayActivity extends ActionBarActivity implements
 	private int currentDir = -1;
 
 	private Word tmpWord;
-
-	private View view;
 
 	private MatchData m;
 	MenuItem timerItem;
@@ -103,6 +105,9 @@ public class PlayActivity extends ActionBarActivity implements
 	private TextView tvTimer;
 	private int countTime = 0;
 	private boolean isPause = false;
+	private int countReveal = 0;
+	private final int scorePerCell = 5;
+	private final int scorePerCellReveal = 2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -110,12 +115,15 @@ public class PlayActivity extends ActionBarActivity implements
 
 		setContentView(R.layout.activity_play);
 
-		flag = getIntent().getStringExtra(AppConfig.FLAG);
+		// flag = getIntent().getStringExtra(AppConfig.FLAG);
 
-		idSubject = getIntent().getIntExtra("ID", 0);
-		System.out.println(flag + " " + idSubject);
+		// idSubject = getIntent().getIntExtra("ID", 0);
+		// System.out.println(flag + " " + idSubject);
+		flag = AppConfig.FLAG_SUBJECT;
+		idSubject = 1;
 
 		this.init();
+		
 	}
 
 	private void init() {
@@ -126,7 +134,9 @@ public class PlayActivity extends ActionBarActivity implements
 
 		if (httpConnection.checkNetWorkState(PlayActivity.this)) {
 
-			this.sendRequestGetMatch(idSubject, flag);
+			// /this.sendRequestGetMatch(idSubject, flag);
+			this.resetGrid();
+			this.createGrid(AppConfig.getWords());
 
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(),
@@ -143,7 +153,7 @@ public class PlayActivity extends ActionBarActivity implements
 		this.wordList = new ArrayList<Word>();
 		this.m = null;
 		this.gridCell = null;
-		currentArea = new ArrayList<View>();
+		currentArea = new ArrayList<Integer>();
 		this.tmpWord = null;
 		this.previousPosition = -1;
 		this.currentDir = -1;
@@ -153,6 +163,7 @@ public class PlayActivity extends ActionBarActivity implements
 		this.countTime = 0;
 		this.currentMode = GRID_MODE.NORMAL;
 		this.isPause = false;
+		this.countReveal = 0;
 	}
 
 	private void createGrid(ArrayList<Word> words) {
@@ -181,6 +192,9 @@ public class PlayActivity extends ActionBarActivity implements
 					.getLayoutParams();
 			gridParams.height = height - keyboardHeight
 					- this.tvDescription.getLayoutParams().height;
+			if(gridParams.width > gridParams.height){
+				gridParams.width = gridParams.height;
+			}
 
 			this.gridAdapter = new GridAdapter(this, gridCell);
 			this.grid.setAdapter(gridAdapter);
@@ -369,6 +383,22 @@ public class PlayActivity extends ActionBarActivity implements
 
 			return true;
 
+		}
+
+		if (id == R.id.action_reveal) {
+			if (currentMode == GRID_MODE.NORMAL) {
+				if (previousPosition > 0) {
+
+					TextView view = (TextView) grid
+							.getChildAt(previousPosition);
+					Cell cell = gridCell[previousPosition / this.cols][previousPosition
+							% this.cols];
+					if (cell.getLetter() != null) {
+						view.setText(cell.getLetter());
+					}
+
+				}
+			}
 		}
 
 		if (id == R.id.action_getRankByMatch) {
@@ -571,8 +601,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 			if (tempWords.size() != 0) {
 
-				// tmpWord = tempWords.get(0);
-
 				tmpWord = getWordFromPositionClicked(itemPosition, tempWords);
 
 				if (tmpWord.getDirection() == Direction.ACROSS) {
@@ -582,17 +610,10 @@ public class PlayActivity extends ActionBarActivity implements
 				} else
 					setCurrentDir(-1);
 
-				if (this.view != null) {
-					resetViewSelected(itemPosition);
-				}
-
 				clearLineClicked();
-				setLineClick(tmpWord);
+				setLineClick(tmpWord, itemPosition);
 
 				this.dowIsPlayable = true;
-
-				view = child;
-				child.setBackgroundResource(R.drawable.area_current);
 
 				this.gridAdapter.notifyDataSetChanged();
 				this.previousPosition = itemPosition;
@@ -609,10 +630,17 @@ public class PlayActivity extends ActionBarActivity implements
 				return true;
 			}
 			if (tmpWord != null) {
-				String title = tmpWord.getItem().getQuestion();
+				Position p = tmpWord.getPosition();
+				Cell cell = gridCell[p.getR()][p.getC()];
 
-				this.tvDescription.setText(tmpWord.getDirection() + ": "
-						+ title);
+				String title = tmpWord.getDirection() + ": "
+						+ tmpWord.getItem().getQuestion();
+
+				if (cell.getCellNode() != null
+						&& cell.getCellNode().isStartOfWord()) {
+					title = cell.getCellNode().getOrder() + ". " + title;
+				}
+				this.tvDescription.setText(title);
 
 			}
 
@@ -640,7 +668,7 @@ public class PlayActivity extends ActionBarActivity implements
 
 	}
 
-	private void setLineClick(Word tmpWord) {
+	private void setLineClick(Word tmpWord, int itemPosition) {
 
 		Position p = tmpWord.getPosition();
 
@@ -648,16 +676,198 @@ public class PlayActivity extends ActionBarActivity implements
 		if (tmpWord.getDirection() == Direction.ACROSS) {
 			for (int i = 0; i < answer.length(); i++) {
 
-				View v = grid.getChildAt(p.getC() + p.getR() * this.cols + i);
-				v.setBackgroundResource(R.drawable.area_selected);
-				currentArea.add(v);
+				int position = p.getC() + p.getR() * this.cols + i;
+				Cell cell = gridCell[p.getR()][p.getC() + i];
+				View v = grid.getChildAt(position);
+				if (cell.getCellNode() != null
+						&& cell.getCellNode().isStartOfWord()) {
+
+					int order = cell.getCellNode().getOrder();
+					v.setBackgroundResource(getBackGroundCell(order,
+							CELL_STATE.SELLECTED));
+				} else {
+
+					v.setBackgroundResource(R.drawable.area_selected);
+
+				}
+				currentArea.add(position);
+
 			}
 		} else {
 			for (int i = 0; i < answer.length(); i++) {
-				View v = grid.getChildAt(p.getC() + p.getR() * this.cols + i
-						* this.cols);
-				v.setBackgroundResource(R.drawable.area_selected);
-				currentArea.add(v);
+
+				int position = p.getC() + p.getR() * this.cols + i * this.cols;
+				Cell cell = gridCell[p.getR() + i][p.getC()];
+				View v = grid.getChildAt(position);
+				if (cell.getCellNode() != null
+						&& cell.getCellNode().isStartOfWord()) {
+					int order = cell.getCellNode().getOrder();
+					v.setBackgroundResource(getBackGroundCell(order,
+							CELL_STATE.SELLECTED));
+				} else {
+					v.setBackgroundResource(R.drawable.area_selected);
+				}
+
+				currentArea.add(position);
+			}
+		}
+
+		View currentView = grid.getChildAt(itemPosition);
+		Cell currentCell = gridCell[itemPosition / this.cols][itemPosition
+				% this.cols];
+		if (currentCell.getCellNode() != null
+				&& currentCell.getCellNode().isStartOfWord()) {
+			int order = currentCell.getCellNode().getOrder();
+			currentView.setBackgroundResource(getBackGroundCell(order,
+					CELL_STATE.CURRENT));
+		} else {
+			currentView.setBackgroundResource(R.drawable.area_current);
+		}
+
+	}
+
+	private int getBackGroundCell(int order, CELL_STATE cellState) {
+
+		if (cellState == CELL_STATE.EMPTY) {
+			switch (order) {
+			case 1:
+				return R.drawable.ic_white_1;
+			case 2:
+				return R.drawable.ic_white_2;
+
+			case 3:
+				return R.drawable.ic_white_3;
+
+			case 4:
+				return R.drawable.ic_white_4;
+			case 5:
+				return R.drawable.ic_white_5;
+
+			case 6:
+				return R.drawable.ic_white_6;
+
+			case 7:
+				return R.drawable.ic_white_7;
+
+			case 8:
+				return R.drawable.ic_white_8;
+			case 9:
+				return R.drawable.ic_white_9;
+
+			case 10:
+				return R.drawable.ic_white_10;
+
+			case 11:
+				return R.drawable.ic_white_11;
+
+			case 12:
+				return R.drawable.ic_white_12;
+
+			case 13:
+				return R.drawable.ic_white_13;
+
+			case 14:
+				return R.drawable.ic_white_14;
+
+			case 15:
+				return R.drawable.ic_white_15;
+			default:
+				return 0;
+			}
+		} else if (cellState == CELL_STATE.SELLECTED) {
+
+			switch (order) {
+			case 1:
+				return R.drawable.ic_lineclick_1;
+			case 2:
+				return R.drawable.ic_lineclick_2;
+
+			case 3:
+				return R.drawable.ic_lineclick_3;
+
+			case 4:
+				return R.drawable.ic_lineclick_4;
+			case 5:
+				return R.drawable.ic_lineclick_5;
+
+			case 6:
+				return R.drawable.ic_lineclick_6;
+
+			case 7:
+				return R.drawable.ic_lineclick_7;
+
+			case 8:
+				return R.drawable.ic_lineclick_8;
+			case 9:
+				return R.drawable.ic_lineclick_9;
+
+			case 10:
+				return R.drawable.ic_lineclick_10;
+
+			case 11:
+				return R.drawable.ic_lineclick_11;
+
+			case 12:
+				return R.drawable.ic_lineclick_12;
+
+			case 13:
+				return R.drawable.ic_lineclick_13;
+
+			case 14:
+				return R.drawable.ic_lineclick_14;
+
+			case 15:
+				return R.drawable.ic_lineclick_15;
+			default:
+				return 0;
+			}
+
+		} else {
+
+			switch (order) {
+			case 1:
+				return R.drawable.ic_yellow_1;
+			case 2:
+				return R.drawable.ic_yellow_2;
+
+			case 3:
+				return R.drawable.ic_yellow_3;
+
+			case 4:
+				return R.drawable.ic_yellow_4;
+			case 5:
+				return R.drawable.ic_yellow_5;
+
+			case 6:
+				return R.drawable.ic_yellow_6;
+
+			case 7:
+				return R.drawable.ic_yellow_7;
+
+			case 8:
+				return R.drawable.ic_yellow_8;
+			case 9:
+				return R.drawable.ic_yellow_9;
+
+			case 10:
+				return R.drawable.ic_yellow_10;
+
+			case 11:
+				return R.drawable.ic_yellow_11;
+
+			case 12:
+				return R.drawable.ic_yellow_12;
+
+			case 13:
+				return R.drawable.ic_yellow_13;
+
+			case 14:
+				return R.drawable.ic_yellow_14;
+
+			case 15:
+				return R.drawable.ic_yellow_15;
+			default:
+				return 0;
 			}
 		}
 
@@ -706,32 +916,21 @@ public class PlayActivity extends ActionBarActivity implements
 		return words;
 	}
 
-	private void resetViewSelected(int position) {
-
-		if (currentDir == 0) {
-
-			if (position / this.cols == previousPosition / this.cols) {
-				view.setBackgroundResource(R.drawable.area_selected);
-			} else {
-				view.setBackgroundResource(R.drawable.area_empty);
-			}
-
-		} else if (currentDir == 1) {
-
-			if (position % this.cols == previousPosition % this.cols) {
-				view.setBackgroundResource(R.drawable.area_selected);
-			} else {
-				view.setBackgroundResource(R.drawable.area_empty);
-			}
-		}
-
-	}
-
 	private void clearLineClicked() {
 
-		for (View v : currentArea) {
+		for (Integer postition : currentArea) {
 
-			v.setBackgroundResource(R.drawable.area_empty);
+			Cell cell = gridCell[postition / this.cols][postition % this.cols];
+			View v = grid.getChildAt(postition);
+			if (cell.getCellNode() != null
+					&& cell.getCellNode().isStartOfWord()) {
+				int order = cell.getCellNode().getOrder();
+				v.setBackgroundResource(getBackGroundCell(order,
+						CELL_STATE.EMPTY));
+			} else {
+				v.setBackgroundResource(R.drawable.area_empty);
+			}
+
 		}
 
 		currentArea.removeAll(currentArea);
@@ -783,23 +982,38 @@ public class PlayActivity extends ActionBarActivity implements
 			}
 
 			this.gridAdapter.setValue(previousPosition, value);
-			this.gridAdapter.notifyDataSetChanged();
 
-			if (view != null) {
-				TextView tView = (TextView) view;
-				tView.setText(value);
-			}
+			TextView tempView = (TextView) grid.getChildAt(previousPosition);
+			tempView.setText(value);
 
-			this.gridAdapter.notifyDataSetChanged();
 			// move cursor to the next point
 			int tmp = this.moveItemSelected(value);
 
 			if (tmp >= 1 && tmp <= this.rows * this.cols
 					&& !gridAdapter.isBlock(tmp)) {
 
-				view.setBackgroundResource(R.drawable.area_selected);
-				view = grid.getChildAt(tmp);
-				view.setBackgroundResource(R.drawable.area_current);
+				Cell preCell = gridCell[previousPosition / this.cols][previousPosition
+						% this.cols];
+				if (preCell.getCellNode() != null
+						&& preCell.getCellNode().isStartOfWord()) {
+					int order = preCell.getCellNode().getOrder();
+					tempView.setBackgroundResource(getBackGroundCell(order,
+							CELL_STATE.SELLECTED));
+				} else {
+					tempView.setBackgroundResource(R.drawable.area_selected);
+				}
+
+				View nextView = grid.getChildAt(tmp);
+				Cell nextCell = gridCell[tmp / this.cols][tmp % this.cols];
+				if (nextCell.getCellNode() != null
+						&& nextCell.getCellNode().isStartOfWord()) {
+					int order = nextCell.getCellNode().getOrder();
+					nextView.setBackgroundResource(getBackGroundCell(order,
+							CELL_STATE.CURRENT));
+				} else {
+					nextView.setBackgroundResource(R.drawable.area_current);
+				}
+
 				previousPosition = tmp;
 
 			}
@@ -869,7 +1083,8 @@ public class PlayActivity extends ActionBarActivity implements
 			}
 		}
 
-		int totalGrade = (totalLetter - countCommon) * 5;
+		int totalGrade = (totalLetter - countCommon) * scorePerCell
+				- countReveal * scorePerCellReveal;
 
 		return totalGrade;
 	}
@@ -900,7 +1115,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 			@Override
 			protected void onPreExecute() {
-				// TODO Auto-generated method stub
 				super.onPreExecute();
 				progressDialog = new ProgressDialog(PlayActivity.this);
 				progressDialog.setMessage("Loading data...");
@@ -942,7 +1156,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 			@Override
 			protected void onPostExecute(ResponseEntity<MatchData> entity) {
-				// TODO Auto-generated method stub
 				super.onPostExecute(entity);
 
 				if (entity != null) {
@@ -975,7 +1188,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 								@Override
 								public void onClick(View view) {
-									// TODO Auto-generated method stub
 									dialog.dismiss();
 								}
 							});
@@ -1033,7 +1245,6 @@ public class PlayActivity extends ActionBarActivity implements
 	}
 
 	protected void sendRequestUpdateGrade(ScoreForm scoreForm) {
-		// TODO Auto-generated method stub
 
 		class SendRequestUpdateGrade extends
 				AsyncTask<ScoreForm, Void, UserData> {
@@ -1050,7 +1261,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 			@Override
 			protected UserData doInBackground(ScoreForm... params) {
-				// TODO Auto-generated method stub
 
 				ScoreForm scoreForm = params[0];
 
@@ -1078,7 +1288,6 @@ public class PlayActivity extends ActionBarActivity implements
 
 			@Override
 			protected void onPostExecute(UserData result) {
-				// TODO Auto-generated method stub
 				super.onPostExecute(result);
 				progressDialog.dismiss();
 

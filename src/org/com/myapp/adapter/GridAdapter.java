@@ -9,7 +9,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -36,7 +35,6 @@ public class GridAdapter extends BaseAdapter {
 	private int rows;
 	private int cols;
 
-	int index = 0;
 
 	@SuppressWarnings("deprecation")
 	public GridAdapter(Activity act, Cell[][] grid) {
@@ -109,30 +107,26 @@ public class GridAdapter extends BaseAdapter {
 			v.setGravity(Gravity.CENTER);
 
 			if (data != null) {
-				// v.setBackgroundResource(R.drawable.area_empty);
 				v.setBackgroundResource(R.color.cell_empty);
 				v.setTag(AREA_WRITABLE);
 
 				if (cell.getCellNode() != null
 						&& cell.getCellNode().isStartOfWord()) {
-					index++;
+					
 
-					int id = getBackGroundId(index);
+					int id = getBackGroundId(cell.getCellNode().getOrder());
 					if (id != 0) {
-						
+
 						v.setBackgroundResource(id);
-						v.setBackgroundColor(Color.parseColor("#ffffff"));
 					}
 				}
 			} else {
-				// v.setBackgroundResource(R.drawable.area_block);
 				v.setBackgroundResource(R.color.cell);
 				v.setTag(AREA_BLOCK);
 			}
 
 		}
 		this.views.put(position, v);
-
 
 		return v;
 	}
@@ -141,47 +135,46 @@ public class GridAdapter extends BaseAdapter {
 
 		switch (index) {
 		case 1:
-			return R.drawable.ic_1;
+			return R.drawable.ic_white_1;
 		case 2:
-			return R.drawable.ic_2;
+			return R.drawable.ic_white_2;
 
 		case 3:
-			return R.drawable.ic_3;
+			return R.drawable.ic_white_3;
 
 		case 4:
-			return R.drawable.ic_4;
-
+			return R.drawable.ic_white_4;
 		case 5:
-			return R.drawable.ic_5;
+			return R.drawable.ic_white_5;
 
 		case 6:
-			return R.drawable.ic_6;
+			return R.drawable.ic_white_6;
 
 		case 7:
-			return R.drawable.ic_7;
+			return R.drawable.ic_white_7;
 
 		case 8:
-			return R.drawable.ic_8;
+			return R.drawable.ic_white_8;
 		case 9:
-			return R.drawable.ic_9;
+			return R.drawable.ic_white_9;
 
 		case 10:
-			return R.drawable.ic_10;
+			return R.drawable.ic_white_10;
 
 		case 11:
-			return R.drawable.ic_11;
+			return R.drawable.ic_white_11;
 
 		case 12:
-			return R.drawable.ic_12;
+			return R.drawable.ic_white_12;
 
 		case 13:
-			return R.drawable.ic_13;
+			return R.drawable.ic_white_13;
 
 		case 14:
-			return R.drawable.ic_14;
+			return R.drawable.ic_white_14;
 
 		case 15:
-			return R.drawable.ic_15;
+			return R.drawable.ic_white_15;
 
 		default:
 			return 0;

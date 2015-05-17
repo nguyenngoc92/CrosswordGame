@@ -1,6 +1,5 @@
 package org.com.myapp.activity;
 
-import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,8 +14,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import android.app.ProgressDialog;
@@ -173,14 +171,11 @@ public class LoginActivity extends ActionBarActivity {
 					HttpHeaders respHeaders = result.getHeaders();
 					String cookies = respHeaders.getFirst("Set-Cookie");
 
-					// System.out.println(cookies);
 					return cookies;
 
-				} catch (HttpClientErrorException ex) {
+				} catch (RestClientException ex) {
 
-				} catch (HttpServerErrorException e) {
-					e.printStackTrace();
-				}
+				} 
 
 				return null;
 			}
@@ -189,6 +184,7 @@ public class LoginActivity extends ActionBarActivity {
 			protected void onPostExecute(String result) {
 
 				super.onPostExecute(result);
+				System.out.println(result);
 				progressDialog.dismiss();
 
 				if (result.contains("JSESSIONID")) {

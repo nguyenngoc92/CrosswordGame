@@ -20,6 +20,12 @@
         android:orderInCategory="100"
         android:title="@string/solve"
         app:showAsAction="ifRoom"/>
+     <item
+        android:id="@+id/action_reveal"
+        android:orderInCategory="100"
+        android:title="@string/reveal"
+        app:showAsAction="ifRoom"/>
+    
     <item
         android:id="@+id/action_play_continue"
         android:orderInCategory="100"

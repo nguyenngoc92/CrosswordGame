@@ -57,6 +57,7 @@ public class CrossWordFactory {
 
 	private void updatePositionForWord(Cell[][] bestGrid) {
 
+		int order = 1;
 		for (int r = 0; r < bestGrid.length; r++) {
 			for (int c = 0; c < bestGrid[0].length; c++) {
 
@@ -65,7 +66,8 @@ public class CrossWordFactory {
 						&& cell.getCellNode().isStartOfWord()
 						&& cell.getLetter() != null) {
 					List<Integer> indexList = cell.getCellNode().getIndexList();
-
+					cell.getCellNode().setOrder(order);
+					order++;
 					for (int index : indexList) {
 
 						for (int i = 0; i < words.size(); i++) {

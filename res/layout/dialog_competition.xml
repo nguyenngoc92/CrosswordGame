@@ -2,28 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#42A5F5"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:weightSum="5" >
 
     <TextView
         android:id="@+id/tvTitle"
+        style="@style/CodeFont"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="5dp"
         android:gravity="center"
-        android:paddingBottom="10dp"
+        android:paddingBottom="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:paddingTop="30dp"
-        android:text="Title" />
+        android:paddingTop="20dp"
+        android:text="Chrimas dbfdsbsj" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp" >
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp" >
 
         <TextView
             android:id="@+id/tvStart"
@@ -32,7 +34,8 @@
             android:layout_alignParentTop="true"
             android:layout_marginLeft="36dp"
             android:layout_toRightOf="@+id/textView1"
-            android:text="12/11/1992" />
+            android:text="12/11/1992"
+            android:textColor="#FF5722" />
 
         <TextView
             android:id="@+id/textView3"
@@ -41,7 +44,8 @@
             android:layout_alignLeft="@+id/textView1"
             android:layout_below="@+id/textView1"
             android:layout_marginTop="24dp"
-            android:text="End :" />
+            android:text="@string/end"
+            android:textColor="#FF5722" />
 
         <TextView
             android:id="@+id/tvEnd"
@@ -49,7 +53,8 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/textView3"
             android:layout_alignLeft="@+id/tvStart"
-            android:text="12/11/1992" />
+            android:text="12/11/1992"
+            android:textColor="#FF5722" />
 
         <TextView
             android:id="@+id/textView1"
@@ -59,26 +64,27 @@
             android:layout_alignBottom="@+id/tvStart"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="56dp"
-            android:text="Start :" />
+            android:text="@string/start"
+            android:textColor="#FF5722" />
     </RelativeLayout>
 
     <TextView
         android:id="@+id/tvDescrible"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
         android:gravity="center"
         android:maxLines="6"
-        android:paddingBottom="10dp"
+        android:paddingBottom="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:paddingTop="10dp"
-        android:text="Describle" />
+        android:paddingTop="5dp"
+        android:text="Hello, let try your knowledge about english vocabular !"
+        android:textColor="#ffffff" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="5dp"
         android:orientation="horizontal"
         android:weightSum="2" >
 
@@ -86,15 +92,21 @@
             android:id="@+id/btnCancel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_weight="1"
-            android:text="Cancel" />
+            android:background="#304FFE"
+            android:text="@string/cancel"
+            android:textColor="#ffffff" />
 
         <Button
             android:id="@+id/btnTakePartIn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_weight="1"
-            android:text="Take Part In" />
+            android:background="#304FFE"
+            android:text="@string/take_part_in"
+            android:textColor="#ffffff" />
     </LinearLayout>
 
 </LinearLayout>

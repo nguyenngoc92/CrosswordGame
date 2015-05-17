@@ -25,6 +25,8 @@
     <string name="signup">Sign Up</string>
     <string name="signin">Sign In</string>
     <string name="subject_title">Title</string>
+    <string name="reveal">Reveal Word</string>
+    
 
     <style name="DefaultButtonText">
         <item name="android:layout_width">fill_parent</item>
@@ -43,5 +45,10 @@
         <string name="help">Help</string>
         <string name="about">About</string>
         <string name="feedBack">FeedBack</string>
+        <string name="cancel">Cancel</string>
+        <string name="take_part_in">Take Part In</string>
+        <string name="start">Start</string>
+        <string name="end">End</string>
+        
 
 </resources>

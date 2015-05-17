@@ -8,7 +8,8 @@ public class CellNode {
 	private boolean isStartOfWord;
 	private List<Integer> indexList = new ArrayList<Integer>();
 	private List<Integer> indexOfWords = new ArrayList<Integer>();
-
+	private int order = 0;
+	
 	public CellNode() {
 
 	}
@@ -51,4 +52,14 @@ public class CellNode {
 		this.indexList = indexList;
 	}
 
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	
+	
 }
